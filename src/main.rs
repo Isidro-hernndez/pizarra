@@ -1,14 +1,3 @@
-extern crate piston;
-extern crate opengl_graphics;
-extern crate graphics;
-
-#[cfg(feature = "include_sdl2")]
-extern crate sdl2_window;
-#[cfg(feature = "include_glfw")]
-extern crate glfw_window;
-#[cfg(feature = "include_glutin")]
-extern crate glutin_window;
-
 use opengl_graphics::{ GlGraphics, OpenGL };
 use graphics::{ Context, Graphics };
 use std::collections::HashMap;
@@ -22,6 +11,28 @@ use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
 
+struct Line {
+    points: Vec<(f64, f64)>,
+    drawn: bool,
+}
+
+impl Line {
+    fn new() -> Line {
+        Line {
+            points: Vec::with_capacity(1000),
+            drawn: false,
+        }
+    }
+
+    fn len(&self) -> usize {
+        self.points.len()
+    }
+
+    fn push(&mut self, val: (f64, f64)) {
+        self.points.push(val);
+    }
+}
+
 fn main() {
     let opengl = OpenGL::V3_3;
     let mut window: AppWindow = WindowSettings::new("Pizarra", [300, 300])
@@ -31,37 +42,46 @@ fn main() {
     let mut events = Events::new(EventSettings::new().lazy(true));
 
     let mut is_drawing = false;
-    let mut line: Vec<(f64, f64)> = Vec::new();
+    let mut lines: Vec<Line> = Vec::new();
 
     while let Some(event) = events.next(&mut window) {
         if let Some(args) = event.render_args() {
             gl.draw(args.viewport(), |context, graphics| {
-                graphics::clear([1.0; 4], graphics);
-
-                for item in line.iter() {
-                    graphics::ellipse(
-                        [0.0, 0.0, 0.0, 0.7],
-                        graphics::ellipse::circle(item.0, item.1, 2.0),
-                        context.transform,
-                        graphics
-                    );
+                for line in lines.iter() {
+                    if !line.drawn {
+                        for item in line.points.iter() {
+                            graphics::ellipse(
+                                [0.5, 0.5, 0.7, 0.7],
+                                graphics::ellipse::circle(item.0, item.1, 2.0),
+                                context.transform,
+                                graphics
+                            );
+                        }
+                    }
                 }
             });
         }
 
-        // button handling
+        // Mouse Left Button pressed, start of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
             is_drawing = true;
-            line = Vec::new();
+            lines.push(Line::new());
         }
 
+        // Mouse Left Button released, end of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.release_args() {
             is_drawing = false;
+
+            if let Some(line) = lines.last_mut() {
+                line.drawn = true;
+            }
         }
 
         event.mouse_cursor(|x, y| {
             if is_drawing {
-                line.push((x, y));
+                if let Some(line) = lines.last_mut() {
+                    line.push((x, y));
+                }
             }
         });
     }
