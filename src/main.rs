@@ -22,101 +22,47 @@ use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
 
-type AxisValues = HashMap<(i32, u8), f64>;
-
 fn main() {
-    let opengl = OpenGL::V3_2;
-    let mut window: AppWindow = WindowSettings::new("piston-example-user_input", [300, 600])
-        .exit_on_esc(true).opengl(opengl).build().unwrap();
-
-    println!("Press C to turn capture cursor on/off");
-
-    let mut capture_cursor = false;
+    let opengl = OpenGL::V3_3;
+    let mut window: AppWindow = WindowSettings::new("Pizarra", [300, 300])
+        .exit_on_esc(true).opengl(opengl).build()
+        .expect("Window could not be built");
     let ref mut gl = GlGraphics::new(opengl);
-    let mut cursor = [0.0, 0.0];
-
-    let mut axis_values: AxisValues = HashMap::new();
-
     let mut events = Events::new(EventSettings::new().lazy(true));
+
+    let mut is_drawing = false;
+    let mut line: Vec<(f64, f64)> = Vec::new();
+
     while let Some(event) = events.next(&mut window) {
-        if let Some(Button::Mouse(button)) = event.press_args() {
-            println!("Pressed mouse button '{:?}'", button);
-        }
-        if let Some(Button::Keyboard(key)) = event.press_args() {
-            if key == Key::C {
-                println!("Turned capture cursor on");
-                capture_cursor = !capture_cursor;
-                window.set_capture_cursor(capture_cursor);
-            }
-
-            println!("Pressed keyboard key '{:?}'", key);
-        };
-        if let Some(args) = event.button_args() {
-            println!("Scancode {:?}", args.scancode);
-        }
-        if let Some(button) = event.release_args() {
-            match button {
-                Button::Keyboard(key) => println!("Released keyboard key '{:?}'", key),
-                Button::Mouse(button) => println!("Released mouse button '{:?}'", button),
-                Button::Controller(button) => println!("Released controller button '{:?}'", button),
-                Button::Hat(hat) => println!("Released controller hat `{:?}`", hat),
-            }
-        };
-        if let Some(args) = event.controller_axis_args() {
-            axis_values.insert((args.id, args.axis), args.position);
-        }
-        event.mouse_cursor(|x, y| {
-            cursor = [x, y];
-            println!("Mouse moved '{} {}'", x, y);
-        });
-        event.mouse_relative(|dx, dy| println!("Relative mouse moved '{} {}'", dx, dy));
-        event.text(|text| println!("Typed '{}'", text));
-        event.resize(|w, h| println!("Resized '{}, {}'", w, h));
-
-        if let Some(cursor) = event.cursor_args() {
-            if cursor { println!("Mouse entered"); }
-            else { println!("Mouse left"); }
-        };
-
         if let Some(args) = event.render_args() {
-            gl.draw(args.viewport(), |c, g| {
-                    graphics::clear([1.0; 4], g);
-                    draw_cursor(cursor, &window, &c, g);
+            gl.draw(args.viewport(), |context, graphics| {
+                graphics::clear([1.0; 4], graphics);
+
+                for item in line.iter() {
+                    graphics::ellipse(
+                        [0.0, 0.0, 0.0, 0.7],
+                        graphics::ellipse::circle(item.0, item.1, 2.0),
+                        context.transform,
+                        graphics
+                    );
                 }
-            );
+            });
         }
 
-        if let Some(_args) = event.idle_args() {
-            // println!("Idle {}", _args.dt);
+        // button handling
+        if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
+            is_drawing = true;
+            line = Vec::new();
         }
 
-        if let Some(_args) = event.update_args() {
-            /*
-            // Used to test CPU overload.
-            println!("Update {}", _args.dt);
-            let mut x: f64 = 0.0;
-            for _ in 0..500_000 {
-                x += (1.0 + x).sqrt();
+        if let Some(Button::Mouse(MouseButton::Left)) = event.release_args() {
+            is_drawing = false;
+        }
+
+        event.mouse_cursor(|x, y| {
+            if is_drawing {
+                line.push((x, y));
             }
-            println!("{}", x);
-            */
-        }
+        });
     }
-}
-
-fn draw_cursor<G: Graphics>(
-    cursor: [f64; 2],
-    window: &Window,
-    c: &Context,
-    g: &mut G,
-) {
-    // Cursor.
-    let cursor_color = [0.0, 0.0, 0.0, 1.0];
-
-    graphics::ellipse(
-        cursor_color,
-        graphics::ellipse::circle(cursor[0], cursor[1], 4.0),
-        c.transform,
-        g
-    );
 }
