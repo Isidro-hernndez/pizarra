@@ -11,8 +11,11 @@ use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
 
+use pizarra::thicken;
+use pizarra::Vec2D;
+
 struct Line {
-    points: Vec<(f64, f64)>,
+    points: Vec<Vec2D>,
     drawn: bool,
 }
 
@@ -28,7 +31,7 @@ impl Line {
         self.points.len()
     }
 
-    fn push(&mut self, val: (f64, f64)) {
+    fn push(&mut self, val: Vec2D) {
         self.points.push(val);
     }
 }
@@ -48,16 +51,12 @@ fn main() {
         if let Some(args) = event.render_args() {
             gl.draw(args.viewport(), |context, graphics| {
                 for line in lines.iter() {
-                    if !line.drawn {
-                        for item in line.points.iter() {
-                            graphics::ellipse(
-                                [0.5, 0.5, 0.7, 0.7],
-                                graphics::ellipse::circle(item.0, item.1, 2.0),
-                                context.transform,
-                                graphics
-                            );
-                        }
-                    }
+                    graphics::polygon(
+                        [0.5, 0.5, 0.7, 0.7],
+                        &line.points,
+                        context.transform,
+                        graphics
+                    );
                 }
             });
         }
@@ -80,7 +79,7 @@ fn main() {
         event.mouse_cursor(|x, y| {
             if is_drawing {
                 if let Some(line) = lines.last_mut() {
-                    line.push((x, y));
+                    line.push([x, y]);
                 }
             }
         });
