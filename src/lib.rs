@@ -10,12 +10,53 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
 
     let thickness = thickness.abs();
 
-    let result = Vec::with_capacity(line.len()*2);
+    let mut result = Vec::with_capacity(line.len()*2);
+    let mut invtail = Vec::with_capacity(line.len());
 
-    for (p1, p2) in line.iter().zip(line.iter().skip(1)) {
-        let n = normal(unit_vector(*p1, *p2));
+    for (index, (p1, p2)) in line.iter().zip(line.iter().skip(1)).enumerate() {
+        let direction = unit_vector(*p1, *p2);
+        let norm = normal(direction);
+        let offpoint = translate(
+            *p1,
+            scale(
+                norm,
+                thickness/2.0
+            )
+        );
 
-        println!("translated p1: {:?}", add(*p1, scale(n, thickness/2.0)));
+        if index == 0 {
+            result.push(offpoint);
+            invtail.push(translate(
+                *p1,
+                scale(
+                    norm,
+                    -thickness/2.0
+                )
+            ));
+        }
+
+        if index == line.len() -2 {
+            result.push(translate(
+                *p2,
+                scale(
+                    norm,
+                    thickness/2.0
+                )
+            ));
+            invtail.push(translate(
+                *p2,
+                scale(
+                    norm,
+                    -thickness/2.0
+                )
+            ));
+        }
+
+        println!("translated p1: {:?}, direction: {:?}", offpoint, direction);
+    }
+
+    while let Some(p) = invtail.pop() {
+        result.push(p);
     }
 
     result
@@ -41,7 +82,7 @@ fn scale([x, y]: Vec2D, factor: f64) -> Vec2D {
     [x*factor, y*factor]
 }
 
-fn add([x1, y1]: Vec2D, [x2, y2]: Vec2D) -> Vec2D {
+fn translate([x1, y1]: Vec2D, [x2, y2]: Vec2D) -> Vec2D {
     [x1+x2, y1+y2]
 }
 
@@ -88,7 +129,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn vertical() {
         let line = vec![
             [0.0, 0.0],
