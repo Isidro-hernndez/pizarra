@@ -9,7 +9,6 @@ use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
 
-use pizarra::thicken;
 use pizarra::Vec2D;
 use pizarra::color::Color;
 
@@ -62,10 +61,11 @@ fn main() {
                 );
 
                 for line in lines.iter() {
-                    for triangle in thicken(&line.points, thickness) {
-                        graphics::polygon(
+                    for ([x1, y1], [x2, y2]) in line.points.iter().zip(line.points.iter().skip(1)) {
+                        graphics::line(
                             drawcolor,
-                            &triangle,
+                            thickness,
+                            [*x1, *y1, *x2, *y2],
                             context.transform,
                             graphics
                         );
