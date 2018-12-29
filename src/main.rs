@@ -9,7 +9,7 @@ use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
 
-use graphics::math::Vec2d;
+use graphics::math::{Vec2d, self};
 use pizarra::color::Color;
 
 struct Line {
@@ -32,15 +32,23 @@ impl Line {
 
 fn main() {
     let opengl = OpenGL::V3_3;
-    let mut window: AppWindow = WindowSettings::new("Pizarra", [600, 600])
+
+    // more or less constant properties
+    let window_width = 800;
+    let window_height = 400;
+    let thickness = 1.0;
+    let offset = [window_width as f64/2.0, window_height as f64/2.0];
+
+    // piston stuff
+    let mut window: AppWindow = WindowSettings::new("Pizarra", [window_width, window_height])
         .exit_on_esc(true).opengl(opengl).build()
         .expect("Window could not be built");
     let ref mut gl = GlGraphics::new(opengl);
     let mut events = Events::new(EventSettings::new().lazy(true));
 
+    // state
     let mut is_drawing = false;
     let mut lines: Vec<Line> = Vec::new();
-    let thickness = 1.0;
 
     // Colors
     let bgcolor = Color::black().to_a();
@@ -49,15 +57,23 @@ fn main() {
 
     while let Some(event) = events.next(&mut window) {
         if let Some(args) = event.render_args() {
-            gl.draw(args.viewport(), |context, graphics| {
-                graphics::clear(bgcolor, graphics);
+            gl.draw(args.viewport(), |c, g| {
+                let transform = math::multiply(c.transform, math::translate(offset));
+
+                graphics::clear(bgcolor, g);
 
                 graphics::line(
                     guidecolor,
                     thickness,
-                    [10.0, 10.0, 40.0, 10.0],
-                    context.transform,
-                    graphics
+                    [-20.0, 0.0, 20.0, 0.0],
+                    transform, g
+                );
+
+                graphics::line(
+                    guidecolor,
+                    thickness,
+                    [0.0, 20.0, 0.0, -20.0],
+                    transform, g
                 );
 
                 for line in lines.iter() {
@@ -66,8 +82,7 @@ fn main() {
                             drawcolor,
                             thickness,
                             [*x1, *y1, *x2, *y2],
-                            context.transform,
-                            graphics
+                            c.transform, g
                         );
                     }
                 }
