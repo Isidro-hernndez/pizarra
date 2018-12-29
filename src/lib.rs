@@ -1,3 +1,5 @@
+pub mod color;
+
 pub type Vec2D = [f64; 2];
 pub type Rectangle = [Vec2D; 4];
 

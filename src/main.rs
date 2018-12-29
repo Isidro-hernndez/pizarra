@@ -11,6 +11,7 @@ use glutin_window::GlutinWindow as AppWindow;
 
 use pizarra::thicken;
 use pizarra::Vec2D;
+use pizarra::color::Color;
 
 struct Line {
     points: Vec<Vec2D>,
@@ -40,14 +41,30 @@ fn main() {
 
     let mut is_drawing = false;
     let mut lines: Vec<Line> = Vec::new();
+    let thickness = 1.0;
+
+    // Colors
+    let bgcolor = Color::black().to_a();
+    let guidecolor = Color::gray().to_a();
+    let drawcolor = Color::green().to_a();
 
     while let Some(event) = events.next(&mut window) {
         if let Some(args) = event.render_args() {
             gl.draw(args.viewport(), |context, graphics| {
+                graphics::clear(bgcolor, graphics);
+
+                graphics::line(
+                    guidecolor,
+                    thickness,
+                    [10.0, 10.0, 40.0, 10.0],
+                    context.transform,
+                    graphics
+                );
+
                 for line in lines.iter() {
-                    for triangle in thicken(&line.points, 1.0) {
+                    for triangle in thicken(&line.points, thickness) {
                         graphics::polygon(
-                            [0.5, 0.5, 0.7, 0.7],
+                            drawcolor,
                             &triangle,
                             context.transform,
                             graphics
