@@ -35,8 +35,25 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
     result.push(first);
     invtail.push(last);
 
+    // compute middle points
+    let vectors:Vec<(Vec2D, Vec2D, Vec2D)> = line.iter().zip(line.iter().skip(1)).map(|(p1, p2)| {
+        parallels(*p1, *p2, thickness)
+    }).collect();
+
+    for ((p11, p12, v1), (p21, p22, v2)) in vectors.iter().zip(vectors.iter().skip(1)) {
+        result.push(match solve22(*p11, *v1, *p21, *v2) {
+            Some(x) => x,
+            None => *p21,
+        });
+
+        invtail.push(match solve22(*p12, *v1, *p22, *v2) {
+            Some(x) => x,
+            None => *p22,
+        });
+    }
+
     // add last point
-    let (last, first, _) = parallels(line[1], line[0], thickness);
+    let (last, first, _) = parallels(line[line.len()-1], line[line.len()-2], thickness);
     result.push(first);
     invtail.push(last);
 
@@ -87,6 +104,7 @@ fn subs_y(eq: [f64; 3], y: f64) -> f64 {
     (eq[2] - eq[1]*y)/eq[0]
 }
 
+/// solves a 2x2 equation system given two points and two direction vectors
 fn solve22(p1: Vec2D, v1: Vec2D, p2: Vec2D, v2: Vec2D) -> Option<Vec2D> {
     let e1 = to_eq(p1, v1);
     let e2 = to_eq(p2, v2);
@@ -144,6 +162,7 @@ fn normal([x, y]: Vec2D) -> Vec2D {
     [-y, x]
 }
 
+/// scales a direction vector by a factor
 fn scale([x, y]: Vec2D, factor: f64) -> Vec2D {
     [x*factor, y*factor]
 }
@@ -222,25 +241,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
-    fn elbow() {
-        let line = vec![
-            [0.0, 0.0],
-            [2.0, 0.0],
-            [2.0, 2.0],
-        ];
-
-        assert_eq!(thicken(&line, 2.0), vec![
-            [0.0, 1.0],
-            [1.0, 1.0],
-            [1.0, 2.0],
-            [3.0, 2.0],
-            [3.0, -1.0],
-            [0.0, -1.0],
-        ]);
-    }
-
-    #[test]
     fn test_to_eq() {
         assert_eq!(
             to_eq([2.0, 1.0], [0.0, 1.0]),
@@ -282,7 +282,24 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
+    fn elbow() {
+        let line = vec![
+            [0.0, 0.0],
+            [2.0, 0.0],
+            [2.0, 2.0],
+        ];
+
+        assert_eq!(thicken(&line, 2.0), vec![
+            [0.0, 1.0],
+            [1.0, 1.0],
+            [1.0, 2.0],
+            [3.0, 2.0],
+            [3.0, -1.0],
+            [0.0, -1.0],
+        ]);
+    }
+
+    #[test]
     fn tilted_elbow() {
         let line = vec![
             [0.0, 0.0],
@@ -291,7 +308,12 @@ mod tests {
         ];
 
         assert_eq!(thicken(&line, 2.0), vec![
-            [4.0, 0.0],
+            [-0.7071067811865475, 0.7071067811865475],
+            [2.0, 3.414213562373095],
+            [4.707106781186548, 0.7071067811865475],
+            [3.2928932188134525, -0.7071067811865475],
+            [2.0, 0.5857864376269051],
+            [0.7071067811865475, -0.7071067811865475],
         ]);
     }
 }
