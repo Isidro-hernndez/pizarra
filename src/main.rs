@@ -9,11 +9,11 @@ use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
 
-use pizarra::Vec2D;
+use graphics::math::Vec2d;
 use pizarra::color::Color;
 
 struct Line {
-    points: Vec<Vec2D>,
+    points: Vec<Vec2d>,
     drawn: bool,
 }
 
@@ -25,7 +25,7 @@ impl Line {
         }
     }
 
-    fn push(&mut self, val: Vec2D) {
+    fn push(&mut self, val: Vec2d) {
         self.points.push(val);
     }
 }
