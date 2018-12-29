@@ -1,6 +1,5 @@
-use std::ops::Mul;
-
 pub type Vec2D = [f64; 2];
+const EPSILON:f64 = 1e-10;
 
 fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Vec2D> {
     return vec![
@@ -80,6 +79,55 @@ fn to_eq(point: Vec2D, direction: Vec2D) -> [f64; 3] {
     }
 }
 
+fn subs_x(eq: [f64; 3], x: f64) -> f64 {
+    (eq[2] - eq[0]*x)/eq[1]
+}
+
+fn subs_y(eq: [f64; 3], y: f64) -> f64 {
+    (eq[2] - eq[1]*y)/eq[0]
+}
+
+fn solve22(p1: Vec2D, v1: Vec2D, p2: Vec2D, v2: Vec2D) -> Option<Vec2D> {
+    let e1 = to_eq(p1, v1);
+    let e2 = to_eq(p2, v2);
+
+    // discard parallel lines
+    if v1[0] != 0.0 && v2[0] != 0.0 {
+        if (v1[1]/v1[0] - v2[1]/v2[0]).abs() < EPSILON {
+            return None;
+        }
+    } else if v1[0] == 0.0 && v2[0] == 0.0 {
+        return None;
+    }
+
+    // simple cases
+    if e1[0] == 0.0 {
+        let y = e1[2]/e1[1];
+
+        return Some([subs_y(e2, y), y]);
+    } else if e1[1] == 0.0 {
+        let x = e1[2]/e1[0];
+
+        return Some([x, subs_x(e2, x)]);
+    } else if e2[0] == 0.0 {
+        let y = e2[2]/e2[1];
+
+        return Some([subs_y(e1, y), y]);
+    } else if e2[1] == 0.0 {
+        let x = e2[2]/e2[0];
+
+        return Some([x, subs_x(e1, x)]);
+    }
+
+    // there are no zeros, solve normal
+    let x = (e1[1]*e2[2] - e2[1]*e1[2])/(e1[1]*e2[0] - e1[0]*e2[1]);
+
+    Some([
+         x,
+         subs_x(e2, x)
+    ])
+}
+
 /// Returns the unit vector that defines this line
 fn unit_vector([x1, y1]: Vec2D, [x2, y2]: Vec2D) -> Vec2D {
     let d = d([x1, y1], [x2, y2]);
@@ -107,8 +155,6 @@ fn translate([x1, y1]: Vec2D, [x2, y2]: Vec2D) -> Vec2D {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    const EPSILON:f64 = 1e-10;
 
     #[test]
     fn distance() {
@@ -213,12 +259,26 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_solve22() {
         assert_eq!(solve22(
             [2.0, 1.0], [0.0, 1.0],
+            [1.0, 3.0], [0.0, 1.0]
+        ), None);
+
+        assert_eq!(solve22(
+            [2.0, 1.0], [0.0, 1.0],
             [1.0, 3.0], [1.0, 0.0]
-        ), [2.0, 3.0]);
+        ), Some([2.0, 3.0]));
+
+        assert_eq!(solve22(
+            [1.0, 3.0], [1.0, 0.0],
+            [3.0, 1.0], [1.0, 1.0]
+        ), Some([5.0, 3.0]));
+
+        assert_eq!(solve22(
+            [3.0, 1.0], [1.0, 1.0],
+            [3.0, 4.0], [1.0, -1.0]
+        ), Some([4.5, 2.5]));
     }
 
     #[test]
