@@ -32,7 +32,7 @@ impl Line {
 
 fn main() {
     let opengl = OpenGL::V3_3;
-    let mut window: AppWindow = WindowSettings::new("Pizarra", [300, 300])
+    let mut window: AppWindow = WindowSettings::new("Pizarra", [600, 600])
         .exit_on_esc(true).opengl(opengl).build()
         .expect("Window could not be built");
     let ref mut gl = GlGraphics::new(opengl);
@@ -45,12 +45,14 @@ fn main() {
         if let Some(args) = event.render_args() {
             gl.draw(args.viewport(), |context, graphics| {
                 for line in lines.iter() {
-                    graphics::polygon(
-                        [0.5, 0.5, 0.7, 0.7],
-                        &thicken(&line.points, 1.0),
-                        context.transform,
-                        graphics
-                    );
+                    for triangle in thicken(&line.points, 1.0) {
+                        graphics::polygon(
+                            [0.5, 0.5, 0.7, 0.7],
+                            &triangle,
+                            context.transform,
+                            graphics
+                        );
+                    }
                 }
             });
         }

@@ -1,20 +1,28 @@
 pub type Vec2D = [f64; 2];
+pub type Triangle = [Vec2D; 3];
+
 const EPSILON:f64 = 1e-10;
 
 /// simple helper for a single point
-fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Vec2D> {
+fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Triangle> {
     return vec![
-        translate(point, [thickness/2.0, 0.0]),
-        translate(point, [0.0, thickness/2.0]),
-        translate(point, [-thickness/2.0, 0.0]),
-        translate(point, [0.0, -thickness/2.0]),
+        [
+            translate(point, [thickness/2.0, 0.0]),
+            translate(point, [0.0, thickness/2.0]),
+            translate(point, [-thickness/2.0, 0.0]),
+        ],
+        [
+            translate(point, [thickness/2.0, 0.0]),
+            translate(point, [0.0, thickness/2.0]),
+            translate(point, [0.0, -thickness/2.0]),
+        ],
     ];
 }
 
 /// # Panics
 ///
 /// This function panics if thickness is zero
-pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
+pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Triangle> {
     assert!(thickness != 0.0);
 
     if line.len() == 0 {
@@ -27,14 +35,11 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
 
     let thickness = thickness.abs();
 
-    let mut result = Vec::with_capacity(line.len()*2);
-    let mut invtail = Vec::with_capacity(line.len());
+    let mut result = Vec::with_capacity((line.len()-1)*2);
 
     // add first point
     let (first, last, _) = parallels(line[0], line[1], thickness);
-
-    result.push(first);
-    invtail.push(last);
+    let mut last_two = [first, last];
 
     // compute middle points
     let vectors:Vec<(Vec2D, Vec2D, Vec2D)> = line.iter().zip(line.iter().skip(1)).map(|(p1, p2)| {
@@ -42,24 +47,25 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
     }).collect();
 
     for ((p11, p12, v1), (p21, p22, v2)) in vectors.iter().zip(vectors.iter().skip(1)) {
-        result.push(match solve22(*p11, *v1, *p21, *v2) {
+        let first = match solve22(*p11, *v1, *p21, *v2) {
             Some(x) => x,
             None => *p21,
-        });
-
-        invtail.push(match solve22(*p12, *v1, *p22, *v2) {
+        };
+        let last = match solve22(*p12, *v1, *p22, *v2) {
             Some(x) => x,
             None => *p22,
-        });
+        };
+
+        result.push([last_two[0], last_two[1], first]);
+        result.push([last_two[0], last_two[1], last]);
+
+        last_two = [first, last];
     }
 
     // add last point
     let (last, first, _) = parallels(line[line.len()-1], line[line.len()-2], thickness);
-    result.push(first);
-    invtail.push(last);
-
-    // empty the invtail stack into the result
-    result.extend(invtail.iter().rev());
+    result.push([last_two[0], last_two[1], first]);
+    result.push([last_two[0], last_two[1], last]);
 
     result
 }
