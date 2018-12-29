@@ -1,7 +1,5 @@
 use opengl_graphics::{ GlGraphics, OpenGL };
-use graphics::{ Context, Graphics };
-use std::collections::HashMap;
-use piston::window::{ AdvancedWindow, Window, WindowSettings };
+use piston::window::WindowSettings;
 use piston::input::*;
 use piston::event_loop::*;
 #[cfg(feature = "include_sdl2")]
@@ -25,10 +23,6 @@ impl Line {
             points: Vec::with_capacity(1000),
             drawn: false,
         }
-    }
-
-    fn len(&self) -> usize {
-        self.points.len()
     }
 
     fn push(&mut self, val: Vec2D) {
