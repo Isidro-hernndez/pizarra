@@ -2,11 +2,28 @@ use std::ops::Mul;
 
 pub type Vec2D = [f64; 2];
 
+fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Vec2D> {
+    return vec![
+        translate(point, [thickness/2.0, 0.0]),
+        translate(point, [0.0, thickness/2.0]),
+        translate(point, [-thickness/2.0, 0.0]),
+        translate(point, [0.0, -thickness/2.0]),
+    ];
+}
+
 /// # Panics
 ///
 /// This function panics if thickness is zero
 pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
     assert!(thickness != 0.0);
+
+    if line.len() == 0 {
+        return Vec::new();
+    }
+
+    if line.len() == 1 {
+        return thicken_point(line[0], thickness);
+    }
 
     let thickness = thickness.abs();
 
@@ -24,6 +41,7 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
             )
         );
 
+        // handle extreme points
         if index == 0 {
             result.push(offpoint);
             invtail.push(translate(
@@ -140,6 +158,20 @@ mod tests {
             [-1.0, 5.0],
             [1.0, 5.0],
             [1.0, 0.0],
+        ]);
+    }
+
+    #[test]
+    fn point() {
+        let line = vec![
+            [0.0, 0.0],
+        ];
+
+        assert_eq!(thicken(&line, 2.0), vec![
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [-1.0, 0.0],
+            [0.0, -1.0],
         ]);
     }
 
