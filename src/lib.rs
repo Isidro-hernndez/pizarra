@@ -42,9 +42,7 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
     invtail.push(last);
 
     // empty the invtail stack into the result
-    while let Some(p) = invtail.pop() {
-        result.push(p);
-    }
+    result.extend(invtail.iter().rev());
 
     result
 }
