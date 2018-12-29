@@ -30,54 +30,44 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Vec2D> {
     let mut result = Vec::with_capacity(line.len()*2);
     let mut invtail = Vec::with_capacity(line.len());
 
-    for (index, (p1, p2)) in line.iter().zip(line.iter().skip(1)).enumerate() {
-        let direction = unit_vector(*p1, *p2);
-        let norm = normal(direction);
-        let offpoint = translate(
-            *p1,
-            scale(
-                norm,
-                thickness/2.0
-            )
-        );
+    // add first point
+    let (first, last, _) = parallels(line[0], line[1], thickness);
 
-        // handle extreme points
-        if index == 0 {
-            result.push(offpoint);
-            invtail.push(translate(
-                *p1,
-                scale(
-                    norm,
-                    -thickness/2.0
-                )
-            ));
-        }
+    result.push(first);
+    invtail.push(last);
 
-        if index == line.len() -2 {
-            result.push(translate(
-                *p2,
-                scale(
-                    norm,
-                    thickness/2.0
-                )
-            ));
-            invtail.push(translate(
-                *p2,
-                scale(
-                    norm,
-                    -thickness/2.0
-                )
-            ));
-        }
+    // add last point
+    let (last, first, _) = parallels(line[1], line[0], thickness);
+    result.push(first);
+    invtail.push(last);
 
-        println!("translated p1: {:?}, direction: {:?}", offpoint, direction);
-    }
-
+    // empty the invtail stack into the result
     while let Some(p) = invtail.pop() {
         result.push(p);
     }
 
     result
+}
+
+/// Returns two points and a vector that define two parallel lines `thickness`
+/// pixels from the line defined by `p1` and `p2`
+fn parallels(p1: Vec2D, p2: Vec2D, thickness: f64) -> (Vec2D, Vec2D, Vec2D) {
+    let direction = unit_vector(p1, p2);
+    let norm = normal(direction);
+
+    (translate(
+        p1,
+        scale(
+            norm,
+            thickness/2.0
+        )
+    ), translate(
+        p1,
+        scale(
+            norm,
+            -thickness/2.0
+        )
+    ), direction)
 }
 
 /// Returns the unit vector that defines this line
