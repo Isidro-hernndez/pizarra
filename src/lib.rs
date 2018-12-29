@@ -68,6 +68,18 @@ fn parallels(p1: Vec2D, p2: Vec2D, thickness: f64) -> (Vec2D, Vec2D, Vec2D) {
     ), direction)
 }
 
+/// Converts a point and a vector to a ax+by=c form
+fn to_eq(point: Vec2D, direction: Vec2D) -> [f64; 3] {
+    if direction[0] == 0.0 {
+        [1.0, 0.0, point[0]]
+    } else {
+        let m = direction[1]/direction[0];
+        let b = point[1] - m * point[0];
+
+        [-m, 1.0, b]
+    }
+}
+
 /// Returns the unit vector that defines this line
 fn unit_vector([x1, y1]: Vec2D, [x2, y2]: Vec2D) -> Vec2D {
     let d = d([x1, y1], [x2, y2]);
@@ -180,6 +192,33 @@ mod tests {
             [3.0, -1.0],
             [0.0, -1.0],
         ]);
+    }
+
+    #[test]
+    fn test_to_eq() {
+        assert_eq!(
+            to_eq([2.0, 1.0], [0.0, 1.0]),
+            [1.0, 0.0, 2.0]
+        );
+
+        assert_eq!(
+            to_eq([1.0, 3.0], [1.0, 0.0]),
+            [0.0, 1.0, 3.0]
+        );
+
+        assert_eq!(
+            to_eq([3.0, 1.0], [1.0, 1.0]),
+            [-1.0, 1.0, -2.0]
+        );
+    }
+
+    #[test]
+    #[ignore]
+    fn test_solve22() {
+        assert_eq!(solve22(
+            [2.0, 1.0], [0.0, 1.0],
+            [1.0, 3.0], [1.0, 0.0]
+        ), [2.0, 3.0]);
     }
 
     #[test]
