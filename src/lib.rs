@@ -1,19 +1,15 @@
 pub type Vec2D = [f64; 2];
-pub type Triangle = [Vec2D; 3];
+pub type Rectangle = [Vec2D; 4];
 
 const EPSILON:f64 = 1e-10;
 
 /// simple helper for a single point
-fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Triangle> {
+fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Rectangle> {
     return vec![
         [
             translate(point, [thickness/2.0, 0.0]),
             translate(point, [0.0, thickness/2.0]),
             translate(point, [-thickness/2.0, 0.0]),
-        ],
-        [
-            translate(point, [thickness/2.0, 0.0]),
-            translate(point, [0.0, thickness/2.0]),
             translate(point, [0.0, -thickness/2.0]),
         ],
     ];
@@ -22,7 +18,7 @@ fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Triangle> {
 /// # Panics
 ///
 /// This function panics if thickness is zero
-pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Triangle> {
+pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Rectangle> {
     assert!(thickness != 0.0);
 
     if line.len() == 0 {
@@ -56,16 +52,14 @@ pub fn thicken(line: &[Vec2D], thickness: f64) -> Vec<Triangle> {
             None => *p22,
         };
 
-        result.push([last_two[0], last_two[1], first]);
-        result.push([last_two[0], last_two[1], last]);
+        result.push([last_two[0], last_two[1], last, first]);
 
         last_two = [first, last];
     }
 
     // add last point
     let (last, first, _) = parallels(line[line.len()-1], line[line.len()-2], thickness);
-    result.push([last_two[0], last_two[1], first]);
-    result.push([last_two[0], last_two[1], last]);
+    result.push([last_two[0], last_two[1], last, first]);
 
     result
 }
