@@ -1,6 +1,7 @@
 pub type Vec2D = [f64; 2];
 const EPSILON:f64 = 1e-10;
 
+/// simple helper for a single point
 fn thicken_point(point: Vec2D, thickness: f64) -> Vec<Vec2D> {
     return vec![
         translate(point, [thickness/2.0, 0.0]),

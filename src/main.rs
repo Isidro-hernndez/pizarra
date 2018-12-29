@@ -47,7 +47,7 @@ fn main() {
                 for line in lines.iter() {
                     graphics::polygon(
                         [0.5, 0.5, 0.7, 0.7],
-                        &line.points,
+                        &thicken(&line.points, 1.0),
                         context.transform,
                         graphics
                     );
