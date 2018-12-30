@@ -11,7 +11,7 @@ use glutin_window::GlutinWindow as AppWindow;
 use graphics::math;
 
 use pizarra::color::Color;
-use pizarra::poly::{Shape, Line};
+use pizarra::poly::{Shape, DrawCommand, Line};
 
 fn main() {
     let opengl = OpenGL::V3_3;
@@ -33,7 +33,7 @@ fn main() {
     // state
     let mut is_drawing = false;
     let mut is_moving = false;
-    let mut objects: Vec<Line> = Vec::new();
+    let mut objects: Vec<Box<dyn Shape>> = Vec::new();
 
     // Colors
     let bgcolor = Color::black().to_a();
@@ -48,7 +48,13 @@ fn main() {
 
                 // content
                 for item in objects.iter() {
-                    item.draw(t, g);
+                    for cmd in item.draw_commands() {
+                        match cmd {
+                            DrawCommand::Line{
+                                color, thickness, line,
+                            } => graphics::line(color, thickness, line, t, g),
+                        }
+                    }
                 }
 
                 // UI
@@ -71,16 +77,12 @@ fn main() {
         // Mouse Left Button pressed, start of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
             is_drawing = true;
-            objects.push(Line::new());
+            objects.push(Box::new(Line::new()));
         }
 
         // Mouse Left Button released, end of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.release_args() {
             is_drawing = false;
-
-            if let Some(line) = objects.last_mut() {
-                line.drawn = true;
-            }
         }
 
         // start of moving
