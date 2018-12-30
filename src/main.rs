@@ -37,8 +37,8 @@ fn main() {
     let window_width = 800;
     let window_height = 400;
     let thickness = 1.0;
-    let offset = [window_width as f64/2.0, window_height as f64/2.0];
-    let inv_offset = math::translate(math::mul_scalar(offset, -1.0));
+    let mut offset = [window_width as f64/2.0, window_height as f64/2.0];
+    let mut inv_offset = math::translate(math::mul_scalar(offset, -1.0));
 
     // piston stuff
     let mut window: AppWindow = WindowSettings::new("Pizarra", [window_width, window_height])
@@ -49,6 +49,7 @@ fn main() {
 
     // state
     let mut is_drawing = false;
+    let mut is_moving = false;
     let mut lines: Vec<Line> = Vec::new();
 
     // Colors
@@ -107,11 +108,32 @@ fn main() {
             }
         }
 
+        // start of moving
+        if let Some(Button::Mouse(MouseButton::Middle)) = event.press_args() {
+            is_moving = true;
+        }
+
+        // end of moving
+        if let Some(Button::Mouse(MouseButton::Middle)) = event.release_args() {
+            is_moving = false;
+        }
+
         event.mouse_cursor(|x, y| {
-            if is_drawing {
+            if is_drawing && !is_moving {
                 if let Some(line) = lines.last_mut() {
                     line.push(math::transform_pos(inv_offset, [x, y]));
                 }
+            }
+        });
+
+        event.mouse_scroll(|dx, dy| {
+            offset = math::add(offset, [dx, -dy]);
+            inv_offset = math::translate(math::mul_scalar(offset, -1.0));
+        });
+        event.mouse_relative(|dx, dy| {
+            if is_moving {
+                offset = math::add(offset, [dx, dy]);
+                inv_offset = math::translate(math::mul_scalar(offset, -1.0));
             }
         });
     }
