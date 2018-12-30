@@ -34,8 +34,8 @@ fn main() {
     let opengl = OpenGL::V3_3;
 
     // more or less constant properties
-    let window_width = 800;
-    let window_height = 400;
+    let mut window_width = 800.0;
+    let mut window_height = 400.0;
     let thickness = 1.0;
     let mut offset = [window_width as f64/2.0, window_height as f64/2.0];
     let mut inv_offset = math::translate(math::mul_scalar(offset, -1.0));
@@ -118,6 +118,7 @@ fn main() {
             is_moving = false;
         }
 
+        // draw probably
         event.mouse_cursor(|x, y| {
             if is_drawing && !is_moving {
                 if let Some(line) = lines.last_mut() {
@@ -126,6 +127,7 @@ fn main() {
             }
         });
 
+        // move canvas
         event.mouse_scroll(|dx, dy| {
             offset = math::add(offset, [dx, -dy]);
             inv_offset = math::translate(math::mul_scalar(offset, -1.0));
@@ -135,6 +137,16 @@ fn main() {
                 offset = math::add(offset, [dx, dy]);
                 inv_offset = math::translate(math::mul_scalar(offset, -1.0));
             }
+        });
+        event.resize(|w, h| {
+            let dw = w - window_width;
+            let dh = h - window_height;
+
+            offset = math::add(offset, [dw/2.0, dh/2.0]);
+            inv_offset = math::translate(math::mul_scalar(offset, -1.0));
+
+            window_width = w;
+            window_height = h;
         });
     }
 }
