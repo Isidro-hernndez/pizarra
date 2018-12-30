@@ -8,27 +8,10 @@ use sdl2_window::Sdl2Window as AppWindow;
 use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
+use graphics::math;
 
-use graphics::math::{Vec2d, self};
 use pizarra::color::Color;
-
-struct Line {
-    points: Vec<Vec2d>,
-    drawn: bool,
-}
-
-impl Line {
-    fn new() -> Line {
-        Line {
-            points: Vec::with_capacity(1000),
-            drawn: false,
-        }
-    }
-
-    fn push(&mut self, val: Vec2d) {
-        self.points.push(val);
-    }
-}
+use pizarra::poly::Line;
 
 fn main() {
     let opengl = OpenGL::V3_3;
@@ -50,30 +33,22 @@ fn main() {
     // state
     let mut is_drawing = false;
     let mut is_moving = false;
-    let mut lines: Vec<Line> = Vec::new();
+    let mut objects: Vec<Line> = Vec::new();
 
     // Colors
     let bgcolor = Color::black().to_a();
     let guidecolor = Color::gray().to_a();
-    let drawcolor = Color::green().to_a();
 
     while let Some(event) = events.next(&mut window) {
         if let Some(args) = event.render_args() {
             gl.draw(args.viewport(), |c, g| {
-                let transform = math::multiply(c.transform, math::translate(offset));
+                let t = math::multiply(c.transform, math::translate(offset));
 
                 graphics::clear(bgcolor, g);
 
                 // content
-                for line in lines.iter() {
-                    for ([x1, y1], [x2, y2]) in line.points.iter().zip(line.points.iter().skip(1)) {
-                        graphics::line(
-                            drawcolor,
-                            thickness,
-                            [*x1, *y1, *x2, *y2],
-                            transform, g
-                        );
-                    }
+                for item in objects.iter() {
+                    item.draw(t, g);
                 }
 
                 // UI
@@ -81,14 +56,14 @@ fn main() {
                     guidecolor,
                     thickness,
                     [-20.0, 0.0, 20.0, 0.0],
-                    transform, g
+                    t, g
                 );
 
                 graphics::line(
                     guidecolor,
                     thickness,
                     [0.0, 20.0, 0.0, -20.0],
-                    transform, g
+                    t, g
                 );
             });
         }
@@ -96,14 +71,14 @@ fn main() {
         // Mouse Left Button pressed, start of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
             is_drawing = true;
-            lines.push(Line::new());
+            objects.push(Line::new());
         }
 
         // Mouse Left Button released, end of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.release_args() {
             is_drawing = false;
 
-            if let Some(line) = lines.last_mut() {
+            if let Some(line) = objects.last_mut() {
                 line.drawn = true;
             }
         }
@@ -121,8 +96,8 @@ fn main() {
         // draw probably
         event.mouse_cursor(|x, y| {
             if is_drawing && !is_moving {
-                if let Some(line) = lines.last_mut() {
-                    line.push(math::transform_pos(inv_offset, [x, y]));
+                if let Some(item) = objects.last_mut() {
+                    item.handle(math::transform_pos(inv_offset, [x, y]));
                 }
             }
         });
