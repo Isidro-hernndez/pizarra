@@ -2,6 +2,12 @@ use super::color::Color;
 use graphics::math::{Vec2d, Matrix2d};
 use graphics::Graphics;
 
+pub trait Shape {
+    fn handle(&mut self, val: Vec2d);
+    fn draw<G>(&self, t: Matrix2d, g: &mut G)
+        where G: Graphics;
+}
+
 pub struct Line {
     points: Vec<Vec2d>,
     pub drawn: bool,
@@ -32,8 +38,14 @@ impl Line {
     fn push(&mut self, val: Vec2d) {
         self.points.push(val);
     }
+}
 
-    pub fn draw<G>(&self, t: Matrix2d, g: &mut G)
+impl Shape for Line {
+    fn handle(&mut self, val: Vec2d) {
+        self.push(val);
+    }
+
+    fn draw<G>(&self, t: Matrix2d, g: &mut G)
         where G: Graphics
     {
         for ([x1, y1], [x2, y2]) in self.points.iter().zip(self.points.iter().skip(1)) {
@@ -44,9 +56,5 @@ impl Line {
                 t, g
             );
         }
-    }
-
-    pub fn handle(&mut self, val: Vec2d) {
-        self.push(val);
     }
 }

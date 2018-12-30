@@ -11,7 +11,7 @@ use glutin_window::GlutinWindow as AppWindow;
 use graphics::math;
 
 use pizarra::color::Color;
-use pizarra::poly::Line;
+use pizarra::poly::{Shape, Line};
 
 fn main() {
     let opengl = OpenGL::V3_3;
