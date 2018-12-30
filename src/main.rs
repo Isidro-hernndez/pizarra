@@ -38,6 +38,7 @@ fn main() {
     let window_height = 400;
     let thickness = 1.0;
     let offset = [window_width as f64/2.0, window_height as f64/2.0];
+    let inv_offset = math::translate(math::mul_scalar(offset, -1.0));
 
     // piston stuff
     let mut window: AppWindow = WindowSettings::new("Pizarra", [window_width, window_height])
@@ -62,6 +63,19 @@ fn main() {
 
                 graphics::clear(bgcolor, g);
 
+                // content
+                for line in lines.iter() {
+                    for ([x1, y1], [x2, y2]) in line.points.iter().zip(line.points.iter().skip(1)) {
+                        graphics::line(
+                            drawcolor,
+                            thickness,
+                            [*x1, *y1, *x2, *y2],
+                            transform, g
+                        );
+                    }
+                }
+
+                // UI
                 graphics::line(
                     guidecolor,
                     thickness,
@@ -75,17 +89,6 @@ fn main() {
                     [0.0, 20.0, 0.0, -20.0],
                     transform, g
                 );
-
-                for line in lines.iter() {
-                    for ([x1, y1], [x2, y2]) in line.points.iter().zip(line.points.iter().skip(1)) {
-                        graphics::line(
-                            drawcolor,
-                            thickness,
-                            [*x1, *y1, *x2, *y2],
-                            c.transform, g
-                        );
-                    }
-                }
             });
         }
 
@@ -107,7 +110,7 @@ fn main() {
         event.mouse_cursor(|x, y| {
             if is_drawing {
                 if let Some(line) = lines.last_mut() {
-                    line.push([x, y]);
+                    line.push(math::transform_pos(inv_offset, [x, y]));
                 }
             }
         });
