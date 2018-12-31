@@ -1,6 +1,5 @@
 use super::color::Color;
-use graphics::math::{Vec2d, Matrix2d};
-use graphics::Graphics;
+use graphics::math::Vec2d;
 
 pub enum DrawCommand {
     Line{
@@ -12,7 +11,8 @@ pub enum DrawCommand {
 
 pub trait Shape {
     fn handle(&mut self, val: Vec2d);
-    // TODO review the posibility of sending an iterator to prevent the allocation of a vector
+    // TODO review the posibility of sending an iterator to prevent the
+    // allocation of a vector
     fn draw_commands(&self) -> Vec<DrawCommand>;
 }
 
@@ -39,15 +39,11 @@ impl Line {
             ..Line::default()
         }
     }
-
-    fn push(&mut self, val: Vec2d) {
-        self.points.push(val);
-    }
 }
 
 impl Shape for Line {
     fn handle(&mut self, val: Vec2d) {
-        self.push(val);
+        self.points.push(val);
     }
 
     fn draw_commands(&self) -> Vec<DrawCommand> {

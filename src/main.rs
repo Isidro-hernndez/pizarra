@@ -12,19 +12,16 @@ use graphics::math;
 
 use pizarra::color::Color;
 use pizarra::poly::{Shape, DrawCommand, Line};
+use pizarra::Pizarra;
 
 fn main() {
     let opengl = OpenGL::V3_3;
 
-    // more or less constant properties
-    let mut window_width = 800.0;
-    let mut window_height = 400.0;
-    let thickness = 1.0;
-    let mut offset = [window_width as f64/2.0, window_height as f64/2.0];
-    let mut inv_offset = math::translate(math::mul_scalar(offset, -1.0));
+    // The host of everything
+    let mut piz = Pizarra::new([800.0, 400.0]);
 
     // piston stuff
-    let mut window: AppWindow = WindowSettings::new("Pizarra", [window_width, window_height])
+    let mut window: AppWindow = WindowSettings::new("Pizarra", piz.get_dimentions())
         .exit_on_esc(true).opengl(opengl).build()
         .expect("Window could not be built");
     let ref mut gl = GlGraphics::new(opengl);
@@ -42,7 +39,7 @@ fn main() {
     while let Some(event) = events.next(&mut window) {
         if let Some(args) = event.render_args() {
             gl.draw(args.viewport(), |c, g| {
-                let t = math::multiply(c.transform, math::translate(offset));
+                let t = math::multiply(c.transform, piz.get_offset_t());
 
                 graphics::clear(bgcolor, g);
 
@@ -58,19 +55,8 @@ fn main() {
                 }
 
                 // UI
-                graphics::line(
-                    guidecolor,
-                    thickness,
-                    [-20.0, 0.0, 20.0, 0.0],
-                    t, g
-                );
-
-                graphics::line(
-                    guidecolor,
-                    thickness,
-                    [0.0, 20.0, 0.0, -20.0],
-                    t, g
-                );
+                graphics::line(guidecolor, 1.0, [-20.0, 0.0, 20.0, 0.0], t, g);
+                graphics::line(guidecolor, 1.0, [0.0, 20.0, 0.0, -20.0], t, g);
             });
         }
 
@@ -99,31 +85,23 @@ fn main() {
         event.mouse_cursor(|x, y| {
             if is_drawing && !is_moving {
                 if let Some(item) = objects.last_mut() {
-                    item.handle(math::transform_pos(inv_offset, [x, y]));
+                    item.handle(math::transform_pos(piz.get_inv_offset(), [x, y]));
                 }
             }
         });
 
         // move canvas
         event.mouse_scroll(|dx, dy| {
-            offset = math::add(offset, [dx, -dy]);
-            inv_offset = math::translate(math::mul_scalar(offset, -1.0));
+            piz.delta_offset([dx, -dy]);
         });
         event.mouse_relative(|dx, dy| {
             if is_moving {
-                offset = math::add(offset, [dx, dy]);
-                inv_offset = math::translate(math::mul_scalar(offset, -1.0));
+                piz.delta_offset([dx, dy]);
             }
         });
+        // or handle resize
         event.resize(|w, h| {
-            let dw = w - window_width;
-            let dh = h - window_height;
-
-            offset = math::add(offset, [dw/2.0, dh/2.0]);
-            inv_offset = math::translate(math::mul_scalar(offset, -1.0));
-
-            window_width = w;
-            window_height = h;
+            piz.resize([w, h]);
         });
     }
 }
