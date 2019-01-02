@@ -15,7 +15,7 @@ use pizarra::poly::{Shape, DrawCommand, Line};
 use pizarra::Pizarra;
 
 fn main() {
-    let opengl = OpenGL::V3_3;
+    let opengl = OpenGL::V3_2;
 
     // The host of everything
     let mut piz = Pizarra::new([800.0, 400.0]);

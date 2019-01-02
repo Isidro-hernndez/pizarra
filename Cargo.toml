@@ -2,14 +2,13 @@
 name = "pizarra"
 version = "0.1.0"
 authors = ["Abraham Toriz <categulario@gmail.com>"]
-keywords = []
+keywords = ["drawing", "presentation"]
 edition = "2018"
 
 [dependencies]
 piston = "0.39.0"
 piston2d-opengl_graphics = "0.57.0"
 piston2d-graphics = "0.28.0"
-piston2d-touch_visualizer = "0.13.0"
 
 [dependencies.pistoncore-sdl2_window]
 version = "0.52.0"
