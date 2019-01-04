@@ -2,6 +2,7 @@ use graphics::math::{self, Vec2d, Matrix2d};
 
 pub mod color;
 pub mod poly;
+pub mod storage;
 
 pub struct Pizarra {
     offset: Vec2d,

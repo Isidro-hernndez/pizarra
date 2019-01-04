@@ -9,6 +9,7 @@ edition = "2018"
 piston = "0.39.0"
 piston2d-opengl_graphics = "0.57.0"
 piston2d-graphics = "0.28.0"
+chrono = "0.4"
 
 [dependencies.pistoncore-sdl2_window]
 version = "0.52.0"

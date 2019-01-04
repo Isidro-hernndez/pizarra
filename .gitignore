@@ -4,6 +4,7 @@
 *.o
 *.so
 *.swp
+*.svg
 *.dylib
 *.dSYM
 *.dll

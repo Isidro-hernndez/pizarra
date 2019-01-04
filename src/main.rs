@@ -9,12 +9,16 @@ use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
 use graphics::math;
+use std::fs::File;
+use std::io::Write;
+use chrono::Local;
 
 use pizarra::color::Color;
-use pizarra::poly::{Shape, DrawCommand, Line};
+use pizarra::poly::{DrawCommand, Line};
 use pizarra::Pizarra;
+use pizarra::storage::ShapeStorage;
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let opengl = OpenGL::V3_2;
 
     // The host of everything
@@ -30,7 +34,7 @@ fn main() {
     // state
     let mut is_drawing = false;
     let mut is_moving = false;
-    let mut objects: Vec<Box<dyn Shape>> = Vec::new();
+    let mut storage = ShapeStorage::new();
 
     // Colors
     let bgcolor = Color::black().to_a();
@@ -44,7 +48,7 @@ fn main() {
                 graphics::clear(bgcolor, g);
 
                 // content
-                for item in objects.iter() {
+                for item in storage.iter() {
                     for cmd in item.draw_commands() {
                         match cmd {
                             DrawCommand::Line{
@@ -63,7 +67,7 @@ fn main() {
         // Mouse Left Button pressed, start of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
             is_drawing = true;
-            objects.push(Box::new(Line::new()));
+            storage.add(Box::new(Line::new()));
         }
 
         // Mouse Left Button released, end of drawing
@@ -84,7 +88,7 @@ fn main() {
         // draw probably
         event.mouse_cursor(|x, y| {
             if is_drawing && !is_moving {
-                if let Some(item) = objects.last_mut() {
+                if let Some(item) = storage.last_mut() {
                     item.handle(math::transform_pos(piz.get_inv_offset(), [x, y]));
                 }
             }
@@ -104,4 +108,13 @@ fn main() {
             piz.resize([w, h]);
         });
     }
+
+    // save the result file
+    let filename = Local::now().format("livepresentation_%Y-%m-%dT%H-%M-%S.svg").to_string();
+
+    let mut file = File::create(filename)?;
+
+    file.write_all(&storage.serialize())?;
+
+    Ok(())
 }
