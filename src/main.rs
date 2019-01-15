@@ -85,6 +85,27 @@ fn main() -> std::io::Result<()> {
             is_moving = false;
         }
 
+        // Ctrl
+        match event.press_args() {
+            Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => {
+                piz.ctrl_on = true;
+            },
+            _ => {},
+        }
+        match event.release_args() {
+            Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => {
+                piz.ctrl_on = false;
+            },
+            _ => {},
+        }
+
+        // ctrl-z
+        if let Some(Button::Keyboard(Key::Z)) = event.press_args() {
+            if piz.ctrl_on {
+                piz.undo();
+            }
+        }
+
         // draw probably
         event.mouse_cursor(|x, y| {
             if is_drawing && !is_moving {

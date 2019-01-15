@@ -4,11 +4,20 @@ pub mod color;
 pub mod poly;
 pub mod storage;
 
+#[derive(Copy,Clone)]
+enum UndoStatus {
+    InSync,
+    At(usize),
+}
+
 pub struct Pizarra {
     offset: Vec2d,
     offset_t: Option<Matrix2d>,
     inv_offset: Option<Matrix2d>,
     dimentions: Vec2d,
+    undo_status: UndoStatus,
+    pub ctrl_on: bool,
+    pub shift_on: bool,
 }
 
 impl Pizarra {
@@ -18,6 +27,9 @@ impl Pizarra {
             offset: math::mul_scalar(dimentions, 0.5),
             inv_offset: None,
             offset_t: None,
+            ctrl_on: false,
+            shift_on: false,
+            undo_status: UndoStatus::InSync,
         }
     }
 
@@ -63,5 +75,8 @@ impl Pizarra {
 
         self.delta_offset(delta);
         self.dimentions = new_size;
+    }
+
+    pub fn undo(&mut self) {
     }
 }
