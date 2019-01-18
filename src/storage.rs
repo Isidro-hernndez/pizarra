@@ -28,6 +28,10 @@ impl ShapeStorage {
     pub fn serialize(&self) -> Vec<u8> {
         String::from("<xml></xml>").bytes().collect()
     }
+
+    pub fn pop(&mut self) -> Option<Box<dyn Shape>> {
+        self.contents.pop()
+    }
 }
 
 pub struct ShapeIterator<'a> {

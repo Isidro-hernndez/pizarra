@@ -103,6 +103,10 @@ fn main() -> std::io::Result<()> {
         if let Some(Button::Keyboard(Key::Z)) = event.press_args() {
             if piz.ctrl_on {
                 piz.undo();
+                // TODO undo() on piz must return an enum of actions to be
+                // taken, match the actions and in case of a deletion, delete
+                // the required object
+                storage.pop();
             }
         }
 
