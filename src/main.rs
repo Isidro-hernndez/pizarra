@@ -14,7 +14,7 @@ use std::io::Write;
 use chrono::Local;
 
 use pizarra::color::Color;
-use pizarra::poly::{DrawCommand, Line};
+use pizarra::poly::{DrawCommand, Line, Rectangle};
 use pizarra::Pizarra;
 use pizarra::storage::ShapeStorage;
 
@@ -54,6 +54,9 @@ fn main() -> std::io::Result<()> {
                             DrawCommand::Line{
                                 color, thickness, line,
                             } => graphics::line(color, thickness, line, t, g),
+                            DrawCommand::Rectangle{
+                                color, rect,
+                            } => graphics::rectangle(color, rect, t, g),
                         }
                     }
                 }

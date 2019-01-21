@@ -1,14 +1,20 @@
 use graphics::math::Vec2d;
 
 pub mod line;
+pub mod rectangle;
 
 pub use self::line::Line;
+pub use self::rectangle::Rectangle;
 
 pub enum DrawCommand {
     Line{
         color: [f32; 4],
         thickness: f64,
         line: [f64; 4],
+    },
+    Rectangle{
+        color: [f32; 4],
+        rect: [f64; 4],
     },
 }
 
