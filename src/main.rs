@@ -137,12 +137,5 @@ fn main() -> std::io::Result<()> {
         });
     }
 
-    // save the result file
-    let filename = Local::now().format("livepresentation_%Y-%m-%dT%H-%M-%S.svg").to_string();
-
-    let mut file = File::create(filename)?;
-
-    file.write_all(&storage.serialize())?;
-
     Ok(())
 }
