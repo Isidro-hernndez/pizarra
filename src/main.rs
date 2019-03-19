@@ -17,6 +17,7 @@ use pizarra::color::Color;
 use pizarra::poly::{DrawCommand, Line, Rectangle};
 use pizarra::Pizarra;
 use pizarra::storage::ShapeStorage;
+use pizarra::serialize::Serialize;
 
 fn main() -> std::io::Result<()> {
     let opengl = OpenGL::V3_2;
@@ -136,6 +137,12 @@ fn main() -> std::io::Result<()> {
             piz.resize([w, h]);
         });
     }
+
+    // save the result file
+    let filename = Local::now().format("livepresentation_%Y-%m-%dT%H-%M-%S.svg").to_string();
+    let mut file = File::create(filename)?;
+
+    file.write_all(&storage.serialize().into_bytes())?;
 
     Ok(())
 }

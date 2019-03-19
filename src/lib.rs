@@ -3,6 +3,7 @@ use graphics::math::{self, Vec2d, Matrix2d};
 pub mod color;
 pub mod poly;
 pub mod storage;
+pub mod serialize;
 
 #[derive(Copy,Clone)]
 enum UndoStatus {

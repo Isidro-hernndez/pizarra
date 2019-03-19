@@ -1,6 +1,7 @@
 use graphics::math::Vec2d;
 use super::DrawCommand;
 use super::Shape;
+use crate::serialize::Serialize;
 
 pub struct Rectangle {
     borders: Option<[f64; 4]>,
@@ -26,6 +27,12 @@ impl Rectangle {
         Rectangle {
             ..Rectangle::default()
         }
+    }
+}
+
+impl Serialize for Rectangle {
+    fn serialize(&self) -> String {
+        String::new()
     }
 }
 
