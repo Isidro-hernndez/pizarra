@@ -5,6 +5,8 @@ pub mod poly;
 pub mod storage;
 pub mod serialize;
 
+pub use poly::Tool;
+
 #[derive(Copy,Clone)]
 enum UndoStatus {
     InSync,

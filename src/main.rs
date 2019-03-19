@@ -14,8 +14,8 @@ use std::io::Write;
 use chrono::Local;
 
 use pizarra::color::Color;
-use pizarra::poly::{DrawCommand, Line, Rectangle};
-use pizarra::Pizarra;
+use pizarra::poly::DrawCommand;
+use pizarra::{Pizarra, Tool};
 use pizarra::storage::ShapeStorage;
 use pizarra::serialize::Serialize;
 
@@ -36,6 +36,7 @@ fn main() -> std::io::Result<()> {
     let mut is_drawing = false;
     let mut is_moving = false;
     let mut storage = ShapeStorage::new();
+    let mut selected_tool = Tool::Line;
 
     // Colors
     let bgcolor = Color::black().to_a();
@@ -71,7 +72,7 @@ fn main() -> std::io::Result<()> {
         // Mouse Left Button pressed, start of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
             is_drawing = true;
-            storage.add(Box::new(Rectangle::new()));
+            storage.add(selected_tool.make());
         }
 
         // Mouse Left Button released, end of drawing
@@ -111,6 +112,18 @@ fn main() -> std::io::Result<()> {
                 // taken, match the actions and in case of a deletion, delete
                 // the required object
                 storage.pop();
+            }
+        }
+
+        // tool selection
+        if let Some(Button::Keyboard(Key::R)) = event.press_args() {
+            if piz.ctrl_on {
+                selected_tool = Tool::Rectangle;
+            }
+        }
+        if let Some(Button::Keyboard(Key::L)) = event.press_args() {
+            if piz.ctrl_on {
+                selected_tool = Tool::Line;
             }
         }
 

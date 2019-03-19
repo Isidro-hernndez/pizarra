@@ -7,6 +7,20 @@ pub mod rectangle;
 pub use self::line::Line;
 pub use self::rectangle::Rectangle;
 
+pub enum Tool {
+    Line,
+    Rectangle,
+}
+
+impl Tool {
+    pub fn make(&self) -> Box<dyn Shape> {
+        match *self {
+            Tool::Line => Box::new(Line::new()),
+            Tool::Rectangle => Box::new(Rectangle::new()),
+        }
+    }
+}
+
 pub enum DrawCommand {
     Line{
         color: [f32; 4],
