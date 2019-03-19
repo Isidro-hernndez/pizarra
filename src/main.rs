@@ -71,7 +71,7 @@ fn main() -> std::io::Result<()> {
         // Mouse Left Button pressed, start of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
             is_drawing = true;
-            storage.add(Box::new(Line::new()));
+            storage.add(Box::new(Rectangle::new()));
         }
 
         // Mouse Left Button released, end of drawing

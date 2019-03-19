@@ -32,7 +32,20 @@ impl Rectangle {
 
 impl Serialize for Rectangle {
     fn serialize(&self) -> String {
-        String::new()
+        if self.borders.is_none() {
+            return String::new();
+        }
+
+        let borders = self.borders.unwrap();
+
+        format!("<rect
+           style=\"opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\"
+           id=\"rect815\"
+           x=\"{:.4}\"
+           y=\"{:.4}\"
+           width=\"{:.4}\"
+           height=\"{:.4}\"
+           />", borders[0], borders[1], borders[2], borders[3])
     }
 }
 
