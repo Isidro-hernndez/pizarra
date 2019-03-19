@@ -7,11 +7,7 @@ pub trait Serialize {
 impl Serialize for ShapeStorage {
     // TODO dynamically set with and height from screen size
     fn serialize(&self) -> String {
-        let mut contents = String::new();
-
-        for item in self.iter() {
-            contents.push_str(&item.serialize());
-        }
+        let mut contents: Vec<String> = self.iter().map(|i| i.serialize()).collect();
 
         format!("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
 <!-- Created with Pizarra (https://github.com/categulario/pizarra) -->
@@ -29,6 +25,6 @@ impl Serialize for ShapeStorage {
   <g id=\"layer1\">
     {}
   </g>
-</svg>", contents)
+</svg>", contents.join("\n"))
     }
 }

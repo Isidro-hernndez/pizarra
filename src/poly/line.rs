@@ -41,7 +41,7 @@ impl Serialize for Line {
             .map(|p| format!("{:.6},{:.6}", p[0], p[1]))
             .collect();
 
-        format!("<path style=\"opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none\" d=\"M {}\" id=\"path815\" />", contents.join(" "))
+        format!("<path style=\"opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none\" d=\"M {}\" />", contents.join(" "))
     }
 }
 
