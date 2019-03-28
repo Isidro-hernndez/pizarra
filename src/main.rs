@@ -13,10 +13,8 @@ use std::fs::File;
 use std::io::Write;
 use chrono::Local;
 
-use pizarra::color::Color;
 use pizarra::poly::DrawCommand;
-use pizarra::{Pizarra, Tool};
-use pizarra::storage::ShapeStorage;
+use pizarra::{App, Pizarra, Tool};
 use pizarra::serialize::Serialize;
 
 fn main() -> std::io::Result<()> {
@@ -29,125 +27,78 @@ fn main() -> std::io::Result<()> {
     let mut window: AppWindow = WindowSettings::new("Pizarra", piz.get_dimentions())
         .exit_on_esc(true).opengl(opengl).build()
         .expect("Window could not be built");
-    let ref mut gl = GlGraphics::new(opengl);
+    let gl = GlGraphics::new(opengl);
     let mut events = Events::new(EventSettings::new().lazy(true));
 
-    // state
-    let mut is_drawing = false;
-    let mut is_moving = false;
-    let mut storage = ShapeStorage::new();
-    let mut selected_tool = Tool::Line;
-
-    // Colors
-    let bgcolor = Color::black().to_a();
-    let guidecolor = Color::gray().to_a();
+    // the app
+    let mut app = App::new(gl, piz);
+    let mut ctrl_on = false;
 
     while let Some(event) = events.next(&mut window) {
         if let Some(args) = event.render_args() {
-            gl.draw(args.viewport(), |c, g| {
-                let t = math::multiply(c.transform, piz.get_offset_t());
-
-                graphics::clear(bgcolor, g);
-
-                // content
-                for item in storage.iter() {
-                    for cmd in item.draw_commands() {
-                        match cmd {
-                            DrawCommand::Line{
-                                color, thickness, line,
-                            } => graphics::line(color, thickness, line, t, g),
-                            DrawCommand::Rectangle{
-                                color, rect,
-                            } => graphics::rectangle(color, rect, t, g),
-                        }
-                    }
-                }
-
-                // UI
-                graphics::line(guidecolor, 1.0, [-20.0, 0.0, 20.0, 0.0], t, g);
-                graphics::line(guidecolor, 1.0, [0.0, 20.0, 0.0, -20.0], t, g);
-            });
+            app.render(&args);
         }
 
-        // Mouse Left Button pressed, start of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
-            is_drawing = true;
-            storage.add(selected_tool.make());
+            app.start_drawing();
         }
 
-        // Mouse Left Button released, end of drawing
         if let Some(Button::Mouse(MouseButton::Left)) = event.release_args() {
-            is_drawing = false;
+            app.finish_drawing();
         }
 
-        // start of moving
         if let Some(Button::Mouse(MouseButton::Middle)) = event.press_args() {
-            is_moving = true;
+            app.start_moving();
         }
 
-        // end of moving
         if let Some(Button::Mouse(MouseButton::Middle)) = event.release_args() {
-            is_moving = false;
+            app.end_moving();
         }
 
-        // Ctrl
         match event.press_args() {
             Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => {
-                piz.ctrl_on = true;
+                ctrl_on = true;
             },
             _ => {},
         }
         match event.release_args() {
             Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => {
-                piz.ctrl_on = false;
+                ctrl_on = false;
             },
             _ => {},
         }
 
         // ctrl-z
         if let Some(Button::Keyboard(Key::Z)) = event.press_args() {
-            if piz.ctrl_on {
-                piz.undo();
-                // TODO undo() on piz must return an enum of actions to be
-                // taken, match the actions and in case of a deletion, delete
-                // the required object
-                storage.pop();
+            if ctrl_on {
+                app.undo();
             }
         }
 
         // tool selection
         if let Some(Button::Keyboard(Key::R)) = event.press_args() {
-            if piz.ctrl_on {
-                selected_tool = Tool::Rectangle;
+            if ctrl_on {
+                app.set_tool(Tool::Rectangle);
             }
         }
         if let Some(Button::Keyboard(Key::L)) = event.press_args() {
-            if piz.ctrl_on {
-                selected_tool = Tool::Line;
+            if ctrl_on {
+                app.set_tool(Tool::Line);
             }
         }
 
         // draw probably
         event.mouse_cursor(|x, y| {
-            if is_drawing && !is_moving {
-                if let Some(item) = storage.last_mut() {
-                    item.handle(math::transform_pos(piz.get_inv_offset(), [x, y]));
-                }
-            }
+            app.handle_cursor(x, y);
         });
 
         // move canvas
         event.mouse_scroll(|dx, dy| {
-            piz.delta_offset([dx, -dy]);
-        });
-        event.mouse_relative(|dx, dy| {
-            if is_moving {
-                piz.delta_offset([dx, dy]);
-            }
+            app.update_offset(dx, -dy);
         });
         // or handle resize
         event.resize(|w, h| {
-            piz.resize([w, h]);
+            app.resize(w, h);
         });
     }
 
@@ -155,7 +106,7 @@ fn main() -> std::io::Result<()> {
     let filename = Local::now().format("livepresentation_%Y-%m-%dT%H-%M-%S.svg").to_string();
     let mut file = File::create(filename)?;
 
-    file.write_all(&storage.serialize().into_bytes())?;
+    file.write_all(&app.serialize().into_bytes())?;
 
     Ok(())
 }

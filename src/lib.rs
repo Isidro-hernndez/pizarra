@@ -4,8 +4,10 @@ pub mod color;
 pub mod poly;
 pub mod storage;
 pub mod serialize;
+pub mod app;
 
 pub use poly::Tool;
+pub use app::App;
 
 #[derive(Copy,Clone)]
 enum UndoStatus {
@@ -19,8 +21,6 @@ pub struct Pizarra {
     inv_offset: Option<Matrix2d>,
     dimentions: Vec2d,
     undo_status: UndoStatus,
-    pub ctrl_on: bool,
-    pub shift_on: bool,
 }
 
 impl Pizarra {
@@ -30,8 +30,6 @@ impl Pizarra {
             offset: math::mul_scalar(dimentions, 0.5),
             inv_offset: None,
             offset_t: None,
-            ctrl_on: false,
-            shift_on: false,
             undo_status: UndoStatus::InSync,
         }
     }
