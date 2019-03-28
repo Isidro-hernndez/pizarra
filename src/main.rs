@@ -8,20 +8,17 @@ use sdl2_window::Sdl2Window as AppWindow;
 use glfw_window::GlfwWindow as AppWindow;
 #[cfg(feature = "include_glutin")]
 use glutin_window::GlutinWindow as AppWindow;
-use graphics::math;
 use std::fs::File;
 use std::io::Write;
 use chrono::Local;
 
-use pizarra::poly::DrawCommand;
 use pizarra::{App, Pizarra, Tool};
-use pizarra::serialize::Serialize;
 
 fn main() -> std::io::Result<()> {
     let opengl = OpenGL::V3_2;
 
     // The host of everything
-    let mut piz = Pizarra::new([800.0, 400.0]);
+    let piz = Pizarra::new([800.0, 400.0]);
 
     // piston stuff
     let mut window: AppWindow = WindowSettings::new("Pizarra", piz.get_dimentions())
@@ -39,64 +36,37 @@ fn main() -> std::io::Result<()> {
             app.render(&args);
         }
 
-        if let Some(Button::Mouse(MouseButton::Left)) = event.press_args() {
-            app.start_drawing();
-        }
-
-        if let Some(Button::Mouse(MouseButton::Left)) = event.release_args() {
-            app.finish_drawing();
-        }
-
-        if let Some(Button::Mouse(MouseButton::Middle)) = event.press_args() {
-            app.start_moving();
-        }
-
-        if let Some(Button::Mouse(MouseButton::Middle)) = event.release_args() {
-            app.end_moving();
-        }
-
         match event.press_args() {
-            Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => {
-                ctrl_on = true;
+            Some(Button::Mouse(MouseButton::Left)) => app.start_drawing(),
+            Some(Button::Mouse(MouseButton::Middle)) => app.start_moving(),
+            Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => { ctrl_on = true; },
+            Some(Button::Keyboard(Key::Z)) => if ctrl_on {
+                app.undo();
+            },
+            Some(Button::Keyboard(Key::R)) => if ctrl_on {
+                app.set_tool(Tool::Rectangle);
+            },
+            Some(Button::Keyboard(Key::L)) => if ctrl_on {
+                app.set_tool(Tool::Line);
             },
             _ => {},
         }
+
         match event.release_args() {
+            Some(Button::Mouse(MouseButton::Left)) => app.finish_drawing(),
+            Some(Button::Mouse(MouseButton::Middle)) => app.end_moving(),
             Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => {
                 ctrl_on = false;
             },
             _ => {},
         }
 
-        // ctrl-z
-        if let Some(Button::Keyboard(Key::Z)) = event.press_args() {
-            if ctrl_on {
-                app.undo();
-            }
-        }
-
-        // tool selection
-        if let Some(Button::Keyboard(Key::R)) = event.press_args() {
-            if ctrl_on {
-                app.set_tool(Tool::Rectangle);
-            }
-        }
-        if let Some(Button::Keyboard(Key::L)) = event.press_args() {
-            if ctrl_on {
-                app.set_tool(Tool::Line);
-            }
-        }
-
-        // draw probably
         event.mouse_cursor(|x, y| {
             app.handle_cursor(x, y);
         });
-
-        // move canvas
         event.mouse_scroll(|dx, dy| {
             app.update_offset(dx, -dy);
         });
-        // or handle resize
         event.resize(|w, h| {
             app.resize(w, h);
         });
