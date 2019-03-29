@@ -12,23 +12,20 @@ use std::fs::File;
 use std::io::Write;
 use chrono::Local;
 
-use pizarra::{App, Pizarra, Tool};
+use pizarra::{App, Tool};
 
 fn main() -> std::io::Result<()> {
     let opengl = OpenGL::V3_2;
-
-    // The host of everything
-    let piz = Pizarra::new([800.0, 400.0]);
+    let initial_dimentions = [800.0, 400.0];
 
     // piston stuff
-    let mut window: AppWindow = WindowSettings::new("Pizarra", piz.get_dimentions())
+    let mut window: AppWindow = WindowSettings::new("Pizarra", initial_dimentions)
         .exit_on_esc(true).opengl(opengl).build()
         .expect("Window could not be built");
-    let gl = GlGraphics::new(opengl);
     let mut events = Events::new(EventSettings::new().lazy(true));
 
-    // the app
-    let mut app = App::new(gl, piz);
+    let gl = GlGraphics::new(opengl);
+    let mut app = App::new(gl, initial_dimentions);
     let mut ctrl_on = false;
 
     while let Some(event) = events.next(&mut window) {
@@ -68,7 +65,7 @@ fn main() -> std::io::Result<()> {
             app.update_offset(dx, -dy);
         });
         event.resize(|w, h| {
-            app.resize(w, h);
+            app.resize([w, h]);
         });
     }
 
