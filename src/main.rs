@@ -59,10 +59,13 @@ fn main() -> std::io::Result<()> {
         }
 
         event.mouse_cursor(|x, y| {
-            app.handle_cursor(x, y);
+            app.handle_cursor([x, y]);
+        });
+        event.mouse_relative(|dx, dy| {
+            app.handle_cursor_relative([dx, dy]);
         });
         event.mouse_scroll(|dx, dy| {
-            app.update_offset(dx, -dy);
+            app.delta_offset([dx, -dy]);
         });
         event.resize(|w, h| {
             app.resize([w, h]);

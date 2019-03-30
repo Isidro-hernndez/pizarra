@@ -104,7 +104,7 @@ impl App {
         }
     }
 
-    fn delta_offset(&mut self, delta: Vec2d) {
+    pub fn delta_offset(&mut self, delta: Vec2d) {
         self.offset = math::add(self.offset, delta);
         self.offset_t = None;
         self.inv_offset = None;
@@ -142,18 +142,20 @@ impl App {
         self.is_moving = false;
     }
 
-    pub fn handle_cursor(&mut self, x: f64, y: f64) {
+    pub fn handle_cursor(&mut self, pos: Vec2d) {
         if self.is_drawing && !self.is_moving {
             let inv_offset = self.get_inv_offset();
 
             if let Some(item) = self.storage.last_mut() {
-                item.handle(math::transform_pos(inv_offset, [x, y]));
+                item.handle(math::transform_pos(inv_offset, pos));
             }
         }
     }
 
-    pub fn update_offset(&mut self, dx: f64, dy: f64) {
-        self.delta_offset([dx, dy]);
+    pub fn handle_cursor_relative(&mut self, delta: Vec2d) {
+        if self.is_moving {
+            self.delta_offset(delta);
+        }
     }
 
     pub fn serialize(&self) -> String {
