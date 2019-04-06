@@ -1,6 +1,37 @@
+#[derive(Copy, Clone)]
 pub struct Color([u8; 4]);
 
+
 impl Color {
+
+    pub fn red() -> Color {
+        Color([0xF4, 0x43, 0x36, 0xff])
+    }
+
+    pub fn blue() -> Color {
+        Color([0x21, 0x96, 0xF3, 0xff])
+    }
+
+    pub fn green() -> Color {
+        Color([0x4C, 0xAF, 0x50, 0xff])
+    }
+
+    pub fn yellow() -> Color {
+        Color([0xFF, 0xEB, 0x3B, 0xff])
+    }
+
+    pub fn orange() -> Color {
+        Color([0xFF, 0x98, 0x00, 0xff])
+    }
+
+    pub fn brown() -> Color {
+        Color([0x79, 0x55, 0x48, 0xff])
+    }
+
+    pub fn white() -> Color {
+        Color([0xFF, 0xFF, 0xFF, 0xff])
+    }
+
     pub fn black() -> Color {
         Color([0x30, 0x36, 0x33, 0xff])
     }
@@ -9,9 +40,9 @@ impl Color {
         Color([0x7f, 0x7b, 0x82, 0xff])
     }
 
-    pub fn green() -> Color {
-        Color([0x7c, 0xae, 0x7a, 0xff])
-    }
+    // pub fn green() -> Color {
+        // Color([0x7c, 0xae, 0x7a, 0xff])
+    // }
 
     pub fn to_a(&self) -> [f32; 4] {
         [

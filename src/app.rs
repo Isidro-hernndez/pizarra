@@ -25,6 +25,7 @@ pub struct App {
     inv_offset: Option<Matrix2d>,
     dimentions: Vec2d,
     undo_status: UndoStatus,
+    current_color: Color,
 }
 
 impl App {
@@ -40,6 +41,7 @@ impl App {
             inv_offset: None,
             offset_t: None,
             undo_status: UndoStatus::InSync,
+            current_color: Color::yellow(),
         }
     }
 
@@ -127,7 +129,7 @@ impl App {
     pub fn start_drawing(&mut self) {
         self.is_drawing = true;
 
-        self.storage.add(self.selected_tool.make());
+        self.storage.add(self.selected_tool.make(self.current_color));
     }
 
     pub fn finish_drawing(&mut self) {

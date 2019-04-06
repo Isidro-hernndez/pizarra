@@ -2,10 +2,11 @@ use graphics::math::Vec2d;
 use super::DrawCommand;
 use super::Shape;
 use crate::serialize::Serialize;
+use crate::color::Color;
 
 pub struct Line {
     points: Vec<Vec2d>,
-    color: [f32; 4],
+    color: Color,
     thickness: f64,
 }
 
@@ -13,21 +14,17 @@ impl Default for Line {
     fn default() -> Line {
         Line {
             points: Vec::new(),
-            color: [
-                0xdd as f32/0xff as f32,
-                0xfc as f32/0xff as f32,
-                0xad as f32/0xff as f32,
-                1.0,
-            ],
+            color: Color::green(),
             thickness: 1.0,
         }
     }
 }
 
 impl Line {
-    pub fn new() -> Line {
+    pub fn new(color: Color) -> Line {
         Line {
             points: Vec::with_capacity(1000),
+            color,
             ..Line::default()
         }
     }
@@ -53,7 +50,7 @@ impl Shape for Line {
     fn draw_commands(&self) -> Vec<DrawCommand> {
         self.points.iter().zip(self.points.iter().skip(1)).map(|([x1, y1], [x2, y2])| {
             DrawCommand::Line {
-                color: self.color,
+                color: self.color.to_a(),
                 thickness: self.thickness,
                 line: [*x1, *y1, *x2, *y2],
             }

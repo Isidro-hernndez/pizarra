@@ -27,6 +27,7 @@ fn main() -> std::io::Result<()> {
     let gl = GlGraphics::new(opengl);
     let mut app = App::new(gl, initial_dimentions);
     let mut ctrl_on = false;
+    let mut alt_on = false;
 
     while let Some(event) = events.next(&mut window) {
         if let Some(args) = event.render_args() {
@@ -37,6 +38,7 @@ fn main() -> std::io::Result<()> {
             Some(Button::Mouse(MouseButton::Left)) => app.start_drawing(),
             Some(Button::Mouse(MouseButton::Middle)) => app.start_moving(),
             Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => { ctrl_on = true; },
+            Some(Button::Keyboard(Key::LAlt)) | Some(Button::Keyboard(Key::RAlt)) => { alt_on = true; },
             Some(Button::Keyboard(Key::Z)) => if ctrl_on {
                 app.undo();
             },
@@ -54,6 +56,9 @@ fn main() -> std::io::Result<()> {
             Some(Button::Mouse(MouseButton::Middle)) => app.end_moving(),
             Some(Button::Keyboard(Key::LCtrl)) | Some(Button::Keyboard(Key::RCtrl)) => {
                 ctrl_on = false;
+            },
+            Some(Button::Keyboard(Key::LAlt)) | Some(Button::Keyboard(Key::RAlt)) => {
+                alt_on = false;
             },
             _ => {},
         }

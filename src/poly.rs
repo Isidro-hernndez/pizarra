@@ -1,5 +1,6 @@
 use graphics::math::Vec2d;
 use super::serialize::Serialize;
+use super::color::Color;
 
 pub mod line;
 pub mod rectangle;
@@ -13,10 +14,10 @@ pub enum Tool {
 }
 
 impl Tool {
-    pub fn make(&self) -> Box<dyn Shape> {
+    pub fn make(&self, color: Color) -> Box<dyn Shape> {
         match *self {
-            Tool::Line => Box::new(Line::new()),
-            Tool::Rectangle => Box::new(Rectangle::new()),
+            Tool::Line => Box::new(Line::new(color)),
+            Tool::Rectangle => Box::new(Rectangle::new(color)),
         }
     }
 }
