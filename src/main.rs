@@ -13,6 +13,7 @@ use std::io::Write;
 use chrono::Local;
 
 use pizarra::{App, Tool};
+use pizarra::color::Color;
 
 fn main() -> std::io::Result<()> {
     let opengl = OpenGL::V3_2;
@@ -42,8 +43,28 @@ fn main() -> std::io::Result<()> {
             Some(Button::Keyboard(Key::Z)) => if ctrl_on {
                 app.undo();
             },
-            Some(Button::Keyboard(Key::R)) => if ctrl_on {
-                app.set_tool(Tool::Rectangle);
+            Some(Button::Keyboard(Key::R)) => {
+                if ctrl_on {
+                    app.set_tool(Tool::Rectangle);
+                }
+                if alt_on {
+                    app.set_color(Color::red());
+                }
+            },
+            Some(Button::Keyboard(Key::B)) => if alt_on {
+                app.set_color(Color::blue());
+            },
+            Some(Button::Keyboard(Key::G)) => if alt_on {
+                app.set_color(Color::green());
+            },
+            Some(Button::Keyboard(Key::Y)) => if alt_on {
+                app.set_color(Color::yellow());
+            },
+            Some(Button::Keyboard(Key::O)) => if alt_on {
+                app.set_color(Color::orange());
+            },
+            Some(Button::Keyboard(Key::W)) => if alt_on {
+                app.set_color(Color::white());
             },
             Some(Button::Keyboard(Key::L)) => if ctrl_on {
                 app.set_tool(Tool::Line);

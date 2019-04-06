@@ -160,6 +160,10 @@ impl App {
         }
     }
 
+    pub fn set_color(&mut self, color: Color) {
+        self.current_color = color;
+    }
+
     pub fn serialize(&self) -> String {
         self.storage.serialize()
     }
