@@ -16,7 +16,7 @@ impl Default for Line {
         Line {
             points: Vec::new(),
             color: Color::green(),
-            thickness: 1.0,
+            thickness: 2.0,
             id: 1,
         }
     }
@@ -43,9 +43,9 @@ impl Serialize for Line {
 
         format!("<path
             id=\"path{}\"
-            style=\"opacity:1;fill:none;fill-opacity:1;stroke:{:X};stroke-width:1;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none\"
+            style=\"opacity:1;fill:none;fill-opacity:1;stroke:{:X};stroke-width:{};stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none\"
             d=\"M {}\"
-            />", self.id, self.color, contents.join(" "))
+            />", self.id, self.color, self.thickness, contents.join(" "))
     }
 }
 
