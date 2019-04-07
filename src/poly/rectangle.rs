@@ -7,6 +7,7 @@ use crate::color::Color;
 pub struct Rectangle {
     borders: Option<[f64; 4]>,
     color: Color,
+    id: usize,
 }
 
 impl Default for Rectangle {
@@ -14,14 +15,16 @@ impl Default for Rectangle {
         Rectangle {
             borders: None,
             color: Color::green(),
+            id: 1,
         }
     }
 }
 
 impl Rectangle {
-    pub fn new(color: Color) -> Rectangle {
+    pub fn new(color: Color, id: usize) -> Rectangle {
         Rectangle {
             color,
+            id,
             ..Rectangle::default()
         }
     }
@@ -37,12 +40,12 @@ impl Serialize for Rectangle {
 
         format!("<rect
            style=\"opacity:1;fill:none;fill-opacity:1;stroke:{:X};stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\"
-           id=\"rect815\"
+           id=\"rect{}\"
            x=\"{:.4}\"
            y=\"{:.4}\"
            width=\"{:.4}\"
            height=\"{:.4}\"
-           />", self.color, borders[0], borders[1], borders[2], borders[3])
+           />", self.color, self.id, borders[0], borders[1], borders[2], borders[3])
     }
 }
 

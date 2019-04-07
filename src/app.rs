@@ -26,6 +26,7 @@ pub struct App {
     dimentions: Vec2d,
     undo_status: UndoStatus,
     current_color: Color,
+    next_id: usize,
 }
 
 impl App {
@@ -42,6 +43,7 @@ impl App {
             offset_t: None,
             undo_status: UndoStatus::InSync,
             current_color: Color::yellow(),
+            next_id: 1,
         }
     }
 
@@ -129,7 +131,8 @@ impl App {
     pub fn start_drawing(&mut self) {
         self.is_drawing = true;
 
-        self.storage.add(self.selected_tool.make(self.current_color));
+        self.storage.add(self.selected_tool.make(self.current_color, self.next_id));
+        self.next_id += 1;
     }
 
     pub fn finish_drawing(&mut self) {

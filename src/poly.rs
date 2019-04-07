@@ -14,10 +14,10 @@ pub enum Tool {
 }
 
 impl Tool {
-    pub fn make(&self, color: Color) -> Box<dyn Shape> {
+    pub fn make(&self, color: Color, id: usize) -> Box<dyn Shape> {
         match *self {
-            Tool::Line => Box::new(Line::new(color)),
-            Tool::Rectangle => Box::new(Rectangle::new(color)),
+            Tool::Line => Box::new(Line::new(color, id)),
+            Tool::Rectangle => Box::new(Rectangle::new(color, id)),
         }
     }
 }
