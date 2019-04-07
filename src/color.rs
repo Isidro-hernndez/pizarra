@@ -56,3 +56,9 @@ impl fmt::UpperHex for Color {
         write!(f, "#{:X}{:X}{:X}", self.0[0], self.0[1], self.0[2])
     }
 }
+
+impl fmt::LowerHex for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "#{:x}{:x}{:x}", self.0[0], self.0[1], self.0[2])
+    }
+}
