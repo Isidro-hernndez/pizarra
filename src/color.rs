@@ -1,6 +1,7 @@
+use std::fmt;
+
 #[derive(Copy, Clone)]
 pub struct Color([u8; 4]);
-
 
 impl Color {
 
@@ -40,10 +41,6 @@ impl Color {
         Color([0x7f, 0x7b, 0x82, 0xff])
     }
 
-    // pub fn green() -> Color {
-        // Color([0x7c, 0xae, 0x7a, 0xff])
-    // }
-
     pub fn to_a(&self) -> [f32; 4] {
         [
             self.0[0] as f32/0xff as f32,
@@ -51,5 +48,11 @@ impl Color {
             self.0[2] as f32/0xff as f32,
             self.0[3] as f32/0xff as f32,
         ]
+    }
+}
+
+impl fmt::UpperHex for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "#{:X}{:X}{:X}", self.0[0], self.0[1], self.0[2])
     }
 }
