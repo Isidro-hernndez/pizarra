@@ -42,7 +42,7 @@ impl App {
             inv_offset: None,
             offset_t: None,
             undo_status: UndoStatus::InSync,
-            current_color: Color::yellow(),
+            current_color: Color::green(),
             next_id: 1,
         }
     }
