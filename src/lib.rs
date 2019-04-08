@@ -11,6 +11,10 @@ permiten cambiar la herramienta en uso, colores y otras configuraciones.
 
 ## Herramientas de dibujo
 
+Para dibujar es necesario hacer click con el botón izquierdo del mouse y
+moverlo por el área de dibujo. Puedes cambiar la herramienta usando los
+siguientes atajos:
+
 * `Ctrl+R` Rectángulo
 * `Ctrl+L` Línea
 
@@ -22,6 +26,12 @@ permiten cambiar la herramienta en uso, colores y otras configuraciones.
 * `Alt+Y` Amarillo
 * `Alt+O` Naranja
 * `Alt+W` Blanco
+
+## Desplazamiento
+
+* Puedes moverte por el canvas usando el botón de enmedio del ratón
+* Para cambiar el nivel de zoom se usan las teclas `+` y `-`
+* Puedes regresar al centro de la vista (incluído zoom) usando la tecla `0`
 
 # Archivo de salida
 
