@@ -27,6 +27,7 @@ pub struct App {
     undo_status: UndoStatus,
     current_color: Color,
     next_id: usize,
+    zoom: i32,
 }
 
 impl App {
@@ -44,6 +45,7 @@ impl App {
             undo_status: UndoStatus::InSync,
             current_color: Color::green(),
             next_id: 1,
+            zoom: 0,
         }
     }
 
@@ -52,13 +54,17 @@ impl App {
         let guidecolor = Color::gray().to_a();
         let offset = self.get_offset_t();
         let mut commands = Vec::new();
+        let zoom = self.zoom;
 
         for item in self.storage.iter() {
             commands.extend(item.draw_commands().into_iter());
         }
 
         self.gl.draw(args.viewport(), |c, g| {
-            let t = math::multiply(c.transform, offset);
+            let t = math::multiply(
+                math::multiply(c.transform, offset),
+                math::scale(2.0_f64.powi(zoom), 2.0_f64.powi(zoom))
+            );
 
             graphics::clear(bgcolor, g);
 
@@ -67,7 +73,7 @@ impl App {
                 match cmd {
                     DrawCommand::Line{
                         color, thickness, line,
-                    } => graphics::line(color, thickness, line, t, g),
+                    } => graphics::line(color, thickness * 2.0_f64.powi(zoom), line, t, g),
                     DrawCommand::Rectangle{
                         color, rect,
                     } => graphics::rectangle(color, rect, t, g),
@@ -163,6 +169,18 @@ impl App {
         }
     }
 
+    pub fn zoom_in(&mut self) {
+        if self.zoom < i32::max_value() {
+            self.zoom += 1;
+        }
+    }
+
+    pub fn zoom_out(&mut self) {
+        if self.zoom > i32::min_value() {
+            self.zoom -= 1;
+        }
+    }
+
     pub fn set_color(&mut self, color: Color) {
         self.current_color = color;
     }
@@ -172,9 +190,6 @@ impl App {
     }
 
     pub fn undo(&mut self) {
-        // TODO must return an enum of actions to be
-        // taken, match the actions and in case of a deletion, delete
-        // the required object
         self.storage.pop();
     }
 }

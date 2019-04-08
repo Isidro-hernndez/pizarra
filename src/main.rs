@@ -69,6 +69,8 @@ fn main() -> std::io::Result<()> {
             Some(Button::Keyboard(Key::L)) => if ctrl_on {
                 app.set_tool(Tool::Line);
             },
+            Some(Button::Keyboard(Key::NumPadPlus)) => app.zoom_in(),
+            Some(Button::Keyboard(Key::NumPadMinus)) => app.zoom_out(),
             _ => {},
         }
 
