@@ -71,6 +71,7 @@ fn main() -> std::io::Result<()> {
             },
             Some(Button::Keyboard(Key::NumPadPlus)) => app.zoom_in(),
             Some(Button::Keyboard(Key::NumPadMinus)) => app.zoom_out(),
+            Some(Button::Keyboard(Key::D0)) => app.go_home(),
             _ => {},
         }
 

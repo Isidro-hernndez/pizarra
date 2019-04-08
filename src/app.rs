@@ -181,6 +181,11 @@ impl App {
         }
     }
 
+    pub fn go_home(&mut self) {
+        self.offset = math::mul_scalar(self.dimentions, 0.5);
+        self.zoom = 0;
+    }
+
     pub fn set_color(&mut self, color: Color) {
         self.current_color = color;
     }
