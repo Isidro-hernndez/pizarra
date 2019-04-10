@@ -48,7 +48,7 @@ impl App {
     pub fn render(&mut self, args: &RenderArgs) {
         let bgcolor = Color::black().to_a();
         let guidecolor = Color::gray().to_a();
-        let offset = self.get_offset_t();
+        let offset_t = self.get_offset_t();
         let mut commands = Vec::new();
         let zoom = self.zoom;
 
@@ -58,7 +58,7 @@ impl App {
 
         self.gl.draw(args.viewport(), |c, g| {
             let t = math::multiply(
-                math::multiply(c.transform, offset),
+                math::multiply(c.transform, offset_t),
                 math::scale(2.0_f64.powi(zoom), 2.0_f64.powi(zoom))
             );
 
