@@ -21,8 +21,6 @@ pub struct App {
     selected_tool: Tool,
     gl: GlGraphics,
     offset: Vec2d,
-    offset_t: Option<Matrix2d>,
-    inv_offset: Option<Matrix2d>,
     dimentions: Vec2d,
     undo_status: UndoStatus,
     current_color: Color,
@@ -40,8 +38,6 @@ impl App {
             gl,
             dimentions,
             offset: math::mul_scalar(dimentions, 0.5),
-            inv_offset: None,
-            offset_t: None,
             undo_status: UndoStatus::InSync,
             current_color: Color::green(),
             next_id: 1,
@@ -91,33 +87,15 @@ impl App {
     }
 
     fn get_inv_offset(&mut self) -> Matrix2d {
-        match self.inv_offset {
-            Some(inv) => inv,
-            None => {
-                let val = math::translate(math::mul_scalar(self.offset, -1.0));
-                self.inv_offset = Some(val);
-
-                val
-            },
-        }
+        math::translate(math::mul_scalar(self.offset, -1.0))
     }
 
     fn get_offset_t(&mut self) -> Matrix2d {
-        match self.offset_t {
-            Some(t) => t,
-            None => {
-                let val = math::translate(self.offset);
-                self.offset_t = Some(val);
-
-                val
-            }
-        }
+        math::translate(self.offset)
     }
 
     pub fn delta_offset(&mut self, delta: Vec2d) {
         self.offset = math::add(self.offset, delta);
-        self.offset_t = None;
-        self.inv_offset = None;
     }
 
     pub fn resize(&mut self, new_size: Vec2d) {
