@@ -1,6 +1,7 @@
 use opengl_graphics::GlGraphics;
 use piston::input::RenderArgs;
-use graphics::math::{self, Vec2d, Matrix2d};
+use graphics::math::{self, Vec2d, Matrix2d, Scalar};
+use graphics::radians::Radians;
 
 use crate::poly::DrawCommand;
 use crate::storage::ShapeStorage;
@@ -73,6 +74,9 @@ impl App {
                     DrawCommand::Rectangle{
                         color, rect,
                     } => graphics::rectangle(color, rect, t, g),
+                    DrawCommand::Circle{
+                        color, rect,
+                    } => graphics::ellipse(color, rect, t, g),
                 }
             }
 
