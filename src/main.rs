@@ -21,8 +21,11 @@ fn main() -> std::io::Result<()> {
 
     // piston stuff
     let mut window: AppWindow = WindowSettings::new("Pizarra", initial_dimentions)
-        .exit_on_esc(true).opengl(opengl).build()
-        .expect("Window could not be built");
+        .graphics_api(opengl)
+        .exit_on_esc(true)
+        .build()
+        .unwrap();
+
     let mut events = Events::new(EventSettings::new().lazy(true));
 
     let gl = GlGraphics::new(opengl);
@@ -90,17 +93,17 @@ fn main() -> std::io::Result<()> {
             _ => {},
         }
 
-        event.mouse_cursor(|x, y| {
-            app.handle_cursor([x, y]);
+        event.mouse_cursor(|coords| {
+            app.handle_cursor(coords);
         });
-        event.mouse_relative(|dx, dy| {
-            app.handle_cursor_relative([dx, dy]);
+        event.mouse_relative(|coords| {
+            app.handle_cursor_relative(coords);
         });
-        event.mouse_scroll(|dx, dy| {
+        event.mouse_scroll(|[dx, dy]| {
             app.delta_offset([dx, -dy]);
         });
-        event.resize(|w, h| {
-            app.resize([w, h]);
+        event.resize(|resize_args| {
+            app.resize(resize_args.window_size);
         });
     }
 

@@ -1,7 +1,6 @@
 use opengl_graphics::GlGraphics;
 use piston::input::RenderArgs;
-use graphics::math::{self, Vec2d, Matrix2d, Scalar};
-use graphics::radians::Radians;
+use graphics::math::{self, Vec2d, Matrix2d};
 
 use crate::poly::DrawCommand;
 use crate::storage::ShapeStorage;
