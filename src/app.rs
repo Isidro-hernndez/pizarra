@@ -2,7 +2,7 @@ use opengl_graphics::GlGraphics;
 use piston::input::RenderArgs;
 use graphics::math::{self, Vec2d, Matrix2d};
 
-use crate::poly::DrawCommand;
+use crate::shape::DrawCommand;
 use crate::storage::ShapeStorage;
 use crate::Tool;
 use crate::color::Color;
@@ -24,7 +24,6 @@ pub struct App {
     dimentions: Vec2d,
     undo_status: UndoStatus,
     current_color: Color,
-    next_id: usize,
     zoom: i32,
 }
 
@@ -40,7 +39,6 @@ impl App {
             offset: math::mul_scalar(dimentions, 0.5),
             undo_status: UndoStatus::InSync,
             current_color: Color::green(),
-            next_id: 1,
             zoom: 0,
         }
     }
@@ -68,13 +66,13 @@ impl App {
             for cmd in commands {
                 match cmd {
                     DrawCommand::Line{
-                        color, thickness, line,
-                    } => graphics::line(color, thickness * 2.0_f64.powi(zoom), line, t, g),
+                        color, line, relative_layer,
+                    } => graphics::line(color, 2.0 * 2.0_f64.powi(relative_layer), line, t, g),
                     DrawCommand::Rectangle{
-                        color, rect,
+                        color, rect, relative_layer,
                     } => graphics::rectangle(color, rect, t, g),
                     DrawCommand::Circle{
-                        color, rect,
+                        color, rect, relative_layer,
                     } => graphics::ellipse(color, rect, t, g),
                 }
             }
@@ -118,8 +116,7 @@ impl App {
     pub fn start_drawing(&mut self) {
         self.is_drawing = true;
 
-        self.storage.add(self.selected_tool.make(self.current_color, self.next_id));
-        self.next_id += 1;
+        self.storage.add(self.selected_tool.make(self.current_color));
     }
 
     pub fn finish_drawing(&mut self) {

@@ -42,10 +42,10 @@ la fecha en hora local en que se hizo.
 */
 
 pub mod color;
-pub mod poly;
+pub mod shape;
 pub mod storage;
 pub mod serialize;
 pub mod app;
 
-pub use poly::Tool;
+pub use shape::Tool;
 pub use app::App;

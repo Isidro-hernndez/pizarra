@@ -1,4 +1,4 @@
-use super::poly::Shape;
+use super::shape::Shape;
 
 pub struct ShapeStorage {
     contents: Vec<Box<dyn Shape>>,
@@ -17,8 +17,8 @@ impl ShapeStorage {
         }
     }
 
-    pub fn add(&mut self, shape: Box<dyn Shape>) {
-        self.contents.push(shape);
+    pub fn add(&mut self, shape: Box<dyn Shape>) -> usize {
+        unimplemented!()
     }
 
     pub fn last_mut(&mut self) -> Option<&mut Box<dyn Shape>> {
@@ -44,9 +44,17 @@ impl <'a> Iterator for ShapeIterator<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::ShapeStorage;
+    use crate::shape::Line;
+    use crate::color::Color;
+
     #[test]
     fn test_add_shapes_at_zoom() {
-        assert!(false, "return an identifier of the shape");
+        let mut storage = ShapeStorage::new();
+        let shape = Box::new(Line::new(Color::red()));
+        let id = storage.add(shape);
+
+        assert_eq!(id, 1);
     }
 
     #[test]
@@ -69,6 +77,7 @@ mod tests {
         assert!(false, "return an iterator over all the shapes that are visible given a zoom level and a bbox");
         assert!(false, "consider returning an iterator over draw commands instead of shapes");
         assert!(false, "each command must include a relative zoom level and a relative location");
+        assert!(false, "shapes at different layers are returned by their relative_layer");
     }
 
     #[test]
