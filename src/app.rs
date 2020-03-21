@@ -116,7 +116,7 @@ impl App {
     pub fn start_drawing(&mut self) {
         self.is_drawing = true;
 
-        self.storage.add(self.selected_tool.make(self.current_color));
+        self.storage.add(self.selected_tool.make(self.current_color), 0);
     }
 
     pub fn finish_drawing(&mut self) {

@@ -1,7 +1,6 @@
 use graphics::math::Vec2d;
 use super::DrawCommand;
 use super::Shape;
-use crate::serialize::Serialize;
 use crate::color::Color;
 
 pub struct Circle {
