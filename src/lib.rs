@@ -46,6 +46,7 @@ pub mod shape;
 pub mod storage;
 pub mod serialize;
 pub mod app;
+pub mod draw_commands;
 
 pub use shape::Tool;
 pub use app::App;

@@ -10,6 +10,7 @@ piston = "0.49.0"
 piston2d-opengl_graphics = "0.72.0"
 piston2d-graphics = "0.36.0"
 chrono = "0.4.11"
+rstar = "0.7.1"
 
 [dependencies.pistoncore-sdl2_window]
 version = "0.63.0"

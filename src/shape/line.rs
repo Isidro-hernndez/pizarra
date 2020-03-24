@@ -1,33 +1,32 @@
 use graphics::math::Vec2d;
-use super::DrawCommand;
-use super::Shape;
+use crate::draw_commands::WireDrawCommand;
+use super::{Shape, ShapeTrait};
 use crate::color::Color;
 
 pub struct Line {
     points: Vec<Vec2d>,
-    color: Color,
 }
 
 impl Line {
-    pub fn new(color: Color) -> Line {
-        Line {
-            points: Vec::with_capacity(1000),
+    pub fn new(color: Color) -> Shape {
+        Shape {
             color,
+            shape_impl: Box::new(Line {
+                points: Vec::with_capacity(1000),
+            }),
         }
     }
 }
 
-impl Shape for Line {
+impl ShapeTrait for Line {
     fn handle(&mut self, val: Vec2d) {
         self.points.push(val);
     }
 
-    fn draw_commands(&self) -> Vec<DrawCommand> {
+    fn draw_commands(&self) -> Vec<WireDrawCommand> {
         self.points.iter().zip(self.points.iter().skip(1)).map(|([x1, y1], [x2, y2])| {
-            DrawCommand::Line {
-                color: self.color.to_a(),
+            WireDrawCommand::Line {
                 line: [*x1, *y1, *x2, *y2],
-                relative_layer: 0,
             }
         }).collect()
     }

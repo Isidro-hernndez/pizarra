@@ -1,10 +1,12 @@
 use graphics::math::Vec2d;
+use rstar::{RTreeObject, AABB};
 
 pub mod line;
 pub mod rectangle;
 pub mod circle;
 
 use super::color::Color;
+use crate::draw_commands::{WireDrawCommand, ColoredDrawCommand};
 
 pub use self::line::Line;
 pub use self::rectangle::Rectangle;
@@ -17,38 +19,45 @@ pub enum Tool {
 }
 
 impl Tool {
-    pub fn make(&self, color: Color) -> Box<dyn Shape> {
+    pub fn make(&self, color: Color) -> Shape {
         match *self {
-            Tool::Line => Box::new(Line::new(color)),
-            Tool::Rectangle => Box::new(Rectangle::new(color)),
-            Tool::Circle => Box::new(Circle::new(color)),
+            Tool::Line => Line::new(color),
+            Tool::Rectangle => Rectangle::new(color),
+            Tool::Circle => Circle::new(color),
         }
     }
 }
 
-pub enum DrawCommand {
-    Line{
-        color: [f32; 4],
-        line: [f64; 4],
-        relative_layer: i32,
-    },
-    Rectangle{
-        color: [f32; 4],
-        rect: [f64; 4],
-        relative_layer: i32,
-    },
-    Circle{
-        color: [f32; 4],
-        rect: [f64; 4],
-        relative_layer: i32,
-    },
-}
 
-pub trait Shape {
+pub trait ShapeTrait {
     /// Must handle new coordinates given to this shape. If this method is
     /// called it means that the shape is being modified (thus this is the most
     /// recently added shape
     fn handle(&mut self, val: Vec2d);
 
-    fn draw_commands(&self) -> Vec<DrawCommand>;
+    /// Must return the necessary commands to display this shape on the screen
+    fn draw_commands(&self) -> Vec<WireDrawCommand>;
+}
+
+pub struct Shape {
+    color: Color,
+    shape_impl: Box<dyn ShapeTrait>,
+}
+
+impl Shape {
+    pub fn handle(&mut self, val: Vec2d) {
+        unimplemented!()
+    }
+
+    fn draw_commands(&self) -> Vec<ColoredDrawCommand> {
+        unimplemented!()
+    }
+}
+
+impl RTreeObject for Shape {
+    type Envelope = AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        unimplemented!()
+    }
 }

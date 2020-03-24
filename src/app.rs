@@ -2,7 +2,7 @@ use opengl_graphics::GlGraphics;
 use piston::input::RenderArgs;
 use graphics::math::{self, Vec2d, Matrix2d};
 
-use crate::shape::DrawCommand;
+use crate::draw_commands::DrawCommand;
 use crate::storage::ShapeStorage;
 use crate::Tool;
 use crate::color::Color;
@@ -50,8 +50,8 @@ impl App {
         let mut commands = Vec::new();
         let zoom = self.zoom;
 
-        for item in self.storage.iter() {
-            commands.extend(item.draw_commands().into_iter());
+        for item in self.storage.draw(zoom, [0.0, 0.0, 1.1, 1.1]) {
+            commands.push(item);
         }
 
         self.gl.draw(args.viewport(), |c, g| {

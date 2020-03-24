@@ -1,25 +1,37 @@
+use std::collections::HashMap;
+
+use rstar::{RTree, RTreeObject, AABB};
+
 use super::shape::Shape;
+use super::draw_commands::DrawCommand;
+
+struct Thing {
+}
+
+impl RTreeObject for Thing {
+    type Envelope = AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        unimplemented!()
+    }
+}
 
 pub struct ShapeStorage {
-    contents: Vec<Box<dyn Shape>>,
+    layers: HashMap<i32, RTree<Thing>>,
 }
 
 /// A storage struct that organizes shapes by their zoom level and allos for
 /// fast queries given a zoom and a bbox.
 impl ShapeStorage {
     pub fn new() -> ShapeStorage {
-        ShapeStorage {
-            contents: Vec::new(),
-        }
+        unimplemented!()
     }
 
     pub fn iter(&self) -> ShapeIterator {
-        ShapeIterator{
-            iterator: self.contents.iter(),
-        }
+        unimplemented!()
     }
 
-    pub fn add(&mut self, shape: Box<dyn Shape>, zoom: i32) -> usize {
+    pub fn add(&mut self, shape: Shape, zoom: i32) -> usize {
         unimplemented!()
     }
 
@@ -27,12 +39,12 @@ impl ShapeStorage {
         unimplemented!()
     }
 
-    pub fn last_mut(&mut self) -> Option<&mut Box<dyn Shape>> {
-        self.contents.last_mut()
+    pub fn last_mut(&mut self) -> Option<&mut Shape> {
+        unimplemented!()
     }
 
-    pub fn pop(&mut self) -> Option<Box<dyn Shape>> {
-        self.contents.pop()
+    pub fn pop(&mut self) -> Option<Shape> {
+        unimplemented!()
     }
 
     pub fn shape_count(&self) -> usize {
@@ -42,14 +54,18 @@ impl ShapeStorage {
     pub fn layer_count(&self) -> usize {
         unimplemented!()
     }
+
+    pub fn draw(&self, layer: i32, bbox: [f64; 4]) -> impl Iterator<Item=DrawCommand> {
+        Vec::new().into_iter()
+    }
 }
 
 pub struct ShapeIterator<'a> {
-    iterator: std::slice::Iter<'a, Box<dyn Shape>>,
+    iterator: std::slice::Iter<'a, Shape>,
 }
 
 impl <'a> Iterator for ShapeIterator<'a> {
-    type Item = &'a Box<dyn Shape>;
+    type Item = &'a Shape;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iterator.next()
@@ -65,10 +81,10 @@ mod tests {
     #[test]
     fn test_add_shapes_at_zoom() {
         let mut storage = ShapeStorage::new();
-        let shapes: Vec<(Box<dyn Shape>, i32)> = vec![
-            (Box::new(Line::new(Color::red())), 0),
-            (Box::new(Rectangle::new(Color::green())), 1),
-            (Box::new(Circle::new(Color::blue())), -1),
+        let shapes: Vec<(Shape, i32)> = vec![
+            (Line::new(Color::red()), 0),
+            (Rectangle::new(Color::green()), 1),
+            (Circle::new(Color::blue()), -1),
         ];
         let ids: Vec<_> = shapes.into_iter().map(|(shape, zoom)| {
             storage.add(shape, zoom)
@@ -88,7 +104,7 @@ mod tests {
 
         assert!(storage.last_mut().is_none());
 
-        storage.add(Box::new(Line::new(Color::blue())), 0);
+        storage.add(Line::new(Color::blue()), 0);
 
         let last_shape = storage.last_mut().unwrap();
 
@@ -111,7 +127,7 @@ mod tests {
 
         assert_eq!(storage.shape_count(), 0);
 
-        let id = storage.add(Box::new(Line::new(Color::green())), 0);
+        let id = storage.add(Line::new(Color::green()), 0);
 
         assert_eq!(storage.shape_count(), 1);
 

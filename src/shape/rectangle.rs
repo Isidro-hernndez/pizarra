@@ -1,6 +1,6 @@
 use graphics::math::Vec2d;
-use super::DrawCommand;
-use super::Shape;
+use crate::draw_commands::WireDrawCommand;
+use super::{Shape, ShapeTrait};
 use crate::color::Color;
 
 pub struct Rectangle {
@@ -8,25 +8,19 @@ pub struct Rectangle {
     color: Color,
 }
 
-impl Default for Rectangle {
-    fn default() -> Rectangle {
-        Rectangle {
-            borders: None,
-            color: Color::green(),
-        }
-    }
-}
-
 impl Rectangle {
-    pub fn new(color: Color) -> Rectangle {
-        Rectangle {
+    pub fn new(color: Color) -> Shape {
+        Shape {
             color,
-            ..Rectangle::default()
+            shape_impl: Box::new(Rectangle {
+                color,
+                borders: None,
+            }),
         }
     }
 }
 
-impl Shape for Rectangle {
+impl ShapeTrait for Rectangle {
     fn handle(&mut self, val: Vec2d) {
         match self.borders.as_mut() {
             Some(bb) => {
@@ -38,12 +32,10 @@ impl Shape for Rectangle {
         }
     }
 
-    fn draw_commands(&self) -> Vec<DrawCommand> {
+    fn draw_commands(&self) -> Vec<WireDrawCommand> {
         match self.borders {
-            Some(bb) => vec![DrawCommand::Rectangle{
-                color: self.color.to_a(),
+            Some(bb) => vec![WireDrawCommand::Rectangle{
                 rect: bb,
-                relative_layer: 0,
             }],
             None => Vec::new(),
         }

@@ -1,32 +1,24 @@
 use graphics::math::Vec2d;
-use super::DrawCommand;
-use super::Shape;
+use crate::draw_commands::WireDrawCommand;
+use super::{Shape, ShapeTrait};
 use crate::color::Color;
 
 pub struct Circle {
     borders: Option<[f64; 4]>,
-    color: Color,
-}
-
-impl Default for Circle {
-    fn default() -> Circle {
-        Circle {
-            borders: None,
-            color: Color::green(),
-        }
-    }
 }
 
 impl Circle {
-    pub fn new(color: Color) -> Circle {
-        Circle {
+    pub fn new(color: Color) -> Shape {
+        Shape {
             color,
-            ..Circle::default()
+            shape_impl: Box::new(Circle {
+                borders: None,
+            })
         }
     }
 }
 
-impl Shape for Circle {
+impl ShapeTrait for Circle {
     fn handle(&mut self, val: Vec2d) {
         match self.borders.as_mut() {
             Some(bb) => {
@@ -38,12 +30,10 @@ impl Shape for Circle {
         }
     }
 
-    fn draw_commands(&self) -> Vec<DrawCommand> {
+    fn draw_commands(&self) -> Vec<WireDrawCommand> {
         match self.borders {
-            Some(bb) => vec![DrawCommand::Circle{
-                color: self.color.to_a(),
+            Some(bb) => vec![WireDrawCommand::Circle{
                 rect: bb,
-                relative_layer: 0,
             }],
             None => Vec::new(),
         }
